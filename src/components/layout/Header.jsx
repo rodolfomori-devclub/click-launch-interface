@@ -41,7 +41,7 @@ const Header = () => {
         {/* Actions */}
         <div className="flex items-center space-x-4">
           {/* Notifications */}
-          <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-secondary-light transition-colors relative focus:outline-primary focus:outline-2 focus:outline-offset-2">
+                      <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-secondary-light transition-colors relative focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50">
             <BellIcon className="w-6 h-6 text-gray-600 dark:text-gray-300" />
             <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full animate-pulse"></span>
           </button>
@@ -49,7 +49,7 @@ const Header = () => {
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-secondary-light transition-colors focus:outline-primary focus:outline-2 focus:outline-offset-2"
+                          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-secondary-light transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50"
           >
             {isDark ? (
               <SunIcon className="w-6 h-6 text-yellow-400" />
@@ -59,7 +59,7 @@ const Header = () => {
           </button>
 
           {/* Profile */}
-          <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-secondary-light transition-colors focus:outline-primary focus:outline-2 focus:outline-offset-2">
+                      <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-secondary-light transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50">
             <UserCircleIcon className="w-6 h-6 text-gray-600 dark:text-gray-300" />
           </button>
         </div>

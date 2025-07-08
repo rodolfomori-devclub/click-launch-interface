@@ -79,7 +79,29 @@ const SavedAnalyses = () => {
     setIsExporting(true);
     
     try {
-      const cleanContent = analysis.content.replace(/```/g, '').trim();
+      // Function to clean content for PDF export (remove emojis and problematic characters)
+      const cleanContentForPDF = (text) => {
+        return text
+          // Remove markdown code blocks
+          .replace(/```/g, '')
+          // Remove emojis and unicode symbols that cause PDF issues
+          .replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '')
+          // Remove other problematic characters
+          .replace(/[📧📤📋🎯💫📖💰🎁⭐🤖🥇🔸🔥✅⚡💡🚀📊📏📦📨🌊🧹💥🔍📱📚]/g, '')
+          // Replace bullet points and special characters
+          .replace(/•/g, '- ')
+          .replace(/–/g, '-')
+          .replace(/—/g, '-')
+          .replace(/"/g, '"')
+          .replace(/"/g, '"')
+          .replace(/'/g, "'")
+          .replace(/'/g, "'")
+          // Clean up extra whitespace
+          .replace(/\s+/g, ' ')
+          .trim();
+      };
+
+      const cleanContent = cleanContentForPDF(analysis.content);
       
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pageWidth = pdf.internal.pageSize.getWidth();

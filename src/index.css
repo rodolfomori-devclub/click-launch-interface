@@ -19,13 +19,13 @@
     @apply bg-primary hover:bg-primary-dark text-white font-medium py-2 px-4 rounded-lg;
     @apply transition-all duration-200 transform hover:scale-105;
     @apply shadow-md hover:shadow-neon;
-    @apply focus:outline-primary focus:outline-2 focus:outline-offset-2;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50;
   }
   
   .btn-secondary {
     @apply bg-secondary hover:bg-secondary-light text-white font-medium py-2 px-4 rounded-lg;
     @apply transition-all duration-200;
-    @apply focus:outline-secondary focus:outline-2 focus:outline-offset-2;
+    @apply focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-opacity-50;
   }
   
   .card {
@@ -35,17 +35,17 @@
   
   /* Input and Form Focus Styles */
   .form-input {
-    @apply focus:outline-primary focus:outline-2 focus:outline-offset-2;
-    @apply focus:ring-0 focus:border-transparent;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50;
+    @apply focus:border-transparent;
   }
   
   .form-select {
-    @apply focus:outline-primary focus:outline-2 focus:outline-offset-2;
-    @apply focus:ring-0 focus:border-transparent;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50;
+    @apply focus:border-transparent;
   }
   
   .form-textarea {
-    @apply focus:outline-primary focus:outline-2 focus:outline-offset-2;
-    @apply focus:ring-0 focus:border-transparent;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50;
+    @apply focus:border-transparent;
   }
 }

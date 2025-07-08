@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "yarn build && aws s3 sync ./dist s3://click-launch-bucket --delete && aws cloudfront create-invalidation --distribution-id E3SDXE2BR2KWEO --paths '/*'"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.56.0",

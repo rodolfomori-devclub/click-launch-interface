@@ -12,6 +12,11 @@ const CentralEmails = () => {
   const [emailsResult, setEmailsResult] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [canContinue, setCanContinue] = useState(false);
+  
+  // Sistema de lotes
+  const [currentBatch, setCurrentBatch] = useState(1);
+  const [isSequenceComplete, setIsSequenceComplete] = useState(false);
+  const [allGeneratedContent, setAllGeneratedContent] = useState('');
 
   // Load existing answers when component mounts
   useEffect(() => {
@@ -57,11 +62,19 @@ const CentralEmails = () => {
     }
   };
 
-  const handleGenerateEmails = async (existingContent = null) => {
+  const handleGenerateEmails = async (batchNumber = null) => {
     setIsGenerating(true);
     setCanContinue(false);
 
+    const batchToGenerate = batchNumber || currentBatch;
+    const isFirstBatch = batchToGenerate === 1;
+    
     try {
+      // Preparar informações do lote
+      const batchInfo = {
+        batchNumber: batchToGenerate,
+        previousContent: isFirstBatch ? null : allGeneratedContent
+      };
       
       const response = await fetch('http://localhost:3001/api/emails/generate-stream', {
         method: 'POST',
@@ -71,14 +84,14 @@ const CentralEmails = () => {
         body: JSON.stringify({
           answers: answers,
           questions: emailsQuestions,
-          existingContent: existingContent
+          batchInfo: batchInfo
         }),
       });
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
-      let emailsContent = existingContent || '';
+      let newBatchContent = '';
       let metadata = null;
 
       while (true) {
@@ -99,38 +112,51 @@ const CentralEmails = () => {
               } else if (data.type === 'content') {
                 const content = data.data;
                 if (content && content !== '[object Object]') {
-                  emailsContent += content;
+                  newBatchContent += content;
+                  
+                  // Combinar conteúdo anterior com novo lote
+                  const combinedContent = allGeneratedContent + newBatchContent;
+                  
                   setEmailsResult({
                     ...metadata,
-                    content: emailsContent,
+                    content: combinedContent,
                     id: Date.now().toString(),
-                    status: 'generating'
+                    status: 'generating',
+                    currentBatch: batchToGenerate,
+                    totalBatches: 6
                   });
                 }
               } else if (data.type === 'complete') {
+                // Atualizar conteúdo total gerado
+                const updatedAllContent = allGeneratedContent + newBatchContent;
+                setAllGeneratedContent(updatedAllContent);
+                
+                // Detectar se é o último lote ou se a sequência está completa
+                const isLastBatch = batchToGenerate === 6;
+                const isComplete = newBatchContent.includes('✅ SEQUÊNCIA COMPLETA DE 29 EMAILS FINALIZADA') ||
+                                 newBatchContent.includes('FIM DA SEQUÊNCIA') ||
+                                 newBatchContent.includes('Sequência completa');
+                
                 const finalResult = {
                   ...metadata,
-                  content: emailsContent,
+                  content: updatedAllContent,
                   id: Date.now().toString(),
-                  status: 'generated'
+                  status: 'generated',
+                  currentBatch: batchToGenerate,
+                  totalBatches: 6,
+                  isComplete: isComplete
                 };
                 setEmailsResult(finalResult);
                 
-                // Check if content seems incomplete
-                const hasIncompleteMarkers = emailsContent.includes('[Continuo') || 
-                                           emailsContent.includes('[continua') ||
-                                           emailsContent.includes('se você quiser') ||
-                                           emailsContent.includes('quer que eu continue') ||
-                                           emailsContent.includes('Gostaria que eu continuasse') ||
-                                           emailsContent.includes('resto do') ||
-                                           emailsContent.includes('Solicite a continuação') ||
-                                           emailsContent.includes('receber o resto');
+                if (isComplete || isLastBatch) {
+                  setIsSequenceComplete(true);
+                  setCanContinue(false);
+                } else {
+                  // Preparar para próximo lote
+                  setCurrentBatch(batchToGenerate + 1);
+                  setCanContinue(true);
+                }
                 
-                const seemsComplete = emailsContent.includes('FIM DA SEQUÊNCIA') ||
-                                    emailsContent.includes('Sequência completa') ||
-                                    (emailsContent.endsWith('.') && emailsContent.length > 5000 && !hasIncompleteMarkers);
-                
-                setCanContinue(hasIncompleteMarkers && !seemsComplete);
                 setIsGenerating(false);
               } else if (data.type === 'error') {
                 throw new Error(data.error);
@@ -150,8 +176,8 @@ const CentralEmails = () => {
   };
 
   const handleContinueGeneration = () => {
-    if (emailsResult?.content) {
-      handleGenerateEmails(emailsResult.content);
+    if (!isSequenceComplete && currentBatch <= 6) {
+      handleGenerateEmails(currentBatch);
     }
   };
 
@@ -160,6 +186,10 @@ const CentralEmails = () => {
     setEmailsResult(null);
     setCurrentStep('questionnaire');
     setCurrentQuestionIndex(0);
+    setCurrentBatch(1);
+    setIsSequenceComplete(false);
+    setAllGeneratedContent('');
+    setCanContinue(false);
     localStorage.removeItem('emailsAnswers');
   };
 

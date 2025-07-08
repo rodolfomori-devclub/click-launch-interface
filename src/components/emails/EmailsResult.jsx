@@ -44,8 +44,30 @@ const EmailsResult = ({ result, onStartOver, onBackToQuestions, canContinue, onC
     setIsExporting(true);
     
     try {
+      // Function to clean content for PDF export (remove emojis and problematic characters)
+      const cleanContentForPDF = (text) => {
+        return text
+          // Remove markdown code blocks
+          .replace(/```/g, '')
+          // Remove emojis and unicode symbols that cause PDF issues
+          .replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '')
+          // Remove other problematic characters
+          .replace(/[📧📤📋🎯💫📖💰🎁⭐🤖🥇🔸🔥✅⚡💡🚀📊📏📦📨🌊🧹💥🔍]/g, '')
+          // Replace bullet points and special characters
+          .replace(/•/g, '- ')
+          .replace(/–/g, '-')
+          .replace(/—/g, '-')
+          .replace(/"/g, '"')
+          .replace(/"/g, '"')
+          .replace(/'/g, "'")
+          .replace(/'/g, "'")
+          // Clean up extra whitespace
+          .replace(/\s+/g, ' ')
+          .trim();
+      };
+      
       // Create a clean version of the content for PDF
-      const cleanContent = result.content.replace(/```/g, '').trim();
+      const cleanContent = cleanContentForPDF(result.content);
       
       // Create PDF
       const pdf = new jsPDF('p', 'mm', 'a4');
@@ -165,15 +187,49 @@ const EmailsResult = ({ result, onStartOver, onBackToQuestions, canContinue, onC
             <CheckCircleIcon className="w-8 h-8 text-green-500" />
           )}
           <h1 className="text-3xl font-bold text-secondary dark:text-white">
-            {isGeneratingStatus ? 'Gerando Sequência de Emails...' : 'Sequência de Emails Completa'}
+            {isGeneratingStatus ? 
+              `Gerando Lote ${result?.currentBatch || 1}/6...` : 
+              result?.isComplete ? 
+                '✅ Sequência de 29 Emails Completa' : 
+                `Lote ${result?.currentBatch || 1}/6 Gerado`
+            }
           </h1>
         </div>
         <p className="text-gray-600 dark:text-gray-400">
           {isGeneratingStatus ? 
-            'Aguarde enquanto o Claude AI cria sua sequência completa de emails de lançamento...' :
+            'Aguarde enquanto o assistente de IA cria sua sequência completa de emails de lançamento...' :
             `${emails.length} emails gerados com base nas suas ${result?.answeredQuestions || 0} respostas`
           }
+          {result?.currentBatch && result?.totalBatches && (
+            <span className="ml-2 text-primary font-medium">
+              • Lote {result.currentBatch}/{result.totalBatches}
+              {result.isComplete && " • ✅ Sequência Completa"}
+            </span>
+          )}
         </p>
+        
+        {/* Progress Bar */}
+        {result?.currentBatch && result?.totalBatches && (
+          <div className="mt-4">
+            <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
+              <span>Progresso da Sequência</span>
+              <span>{Math.round((result.currentBatch / result.totalBatches) * 100)}%</span>
+            </div>
+            <div className="w-full bg-gray-200 dark:bg-secondary-light rounded-full h-2">
+              <div 
+                className="bg-gradient-to-r from-primary to-primary-light h-2 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${(result.currentBatch / result.totalBatches) * 100}%` }}
+              ></div>
+            </div>
+            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-500 mt-1">
+              {Array.from({ length: result.totalBatches }, (_, i) => (
+                <span key={i} className={`${i < result.currentBatch ? 'text-primary font-medium' : ''}`}>
+                  L{i + 1}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
         
         {/* Continue Button at Top */}
         {canContinue && !isGeneratingStatus && (
@@ -183,14 +239,16 @@ const EmailsResult = ({ result, onStartOver, onBackToQuestions, canContinue, onC
               className="flex items-center space-x-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors font-medium shadow-lg"
             >
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              <span>🚀 Continuar Geração da Sequência</span>
+              <span>
+                🚀 Continuar para Lote {result?.currentBatch ? result.currentBatch + 1 : 'Próximo'}/6
+              </span>
             </button>
           </div>
         )}
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <div className="card">
           <div className="flex items-center space-x-3">
             <div className="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-lg flex items-center justify-center">
@@ -218,6 +276,26 @@ const EmailsResult = ({ result, onStartOver, onBackToQuestions, canContinue, onC
             </div>
           </div>
         </div>
+
+        {result?.currentBatch && result?.totalBatches && (
+          <div className="card">
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
+                <span className="text-purple-600 dark:text-purple-400 font-bold text-lg">
+                  {result.currentBatch}
+                </span>
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-secondary dark:text-white">
+                  {result.currentBatch}/{result.totalBatches}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {result.isComplete ? 'Completo' : 'Lote Atual'}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="card">
           <div className="flex items-center space-x-3">
@@ -247,7 +325,7 @@ const EmailsResult = ({ result, onStartOver, onBackToQuestions, canContinue, onC
                 className="flex items-center space-x-2 px-4 py-2 bg-orange-100 dark:bg-orange-900/20 hover:bg-orange-200 dark:hover:bg-orange-900/40 text-orange-800 dark:text-orange-200 rounded-lg transition-colors font-medium"
               >
                 <div className="w-5 h-5 border-2 border-orange-600 border-t-transparent rounded-full animate-spin"></div>
-                <span>Continuar Geração</span>
+                <span>Continuar Lote {result?.currentBatch ? result.currentBatch + 1 : 'Próximo'}/6</span>
               </button>
             )}
             
@@ -331,7 +409,7 @@ const EmailsResult = ({ result, onStartOver, onBackToQuestions, canContinue, onC
                 className="flex items-center space-x-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-lg transition-all transform hover:scale-105 font-medium shadow-xl text-lg"
               >
                 <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>🚀 Continuar Geração do Restante da Sequência</span>
+                <span>🚀 Gerar Lote {result?.currentBatch ? result.currentBatch + 1 : 'Próximo'}/6 ({result?.currentBatch === 5 ? '4' : '5'} emails)</span>
               </button>
             </div>
           </div>

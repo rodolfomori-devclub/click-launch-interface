@@ -42,7 +42,36 @@ export const emailsQuestions = [
     required: true
   },
 
-  // 💫 2. PROMESSAS E TRANSFORMAÇÕES (6 perguntas)
+  // 👥 2. AUDIÊNCIA E CONTEXTO (3 perguntas estratégicas)
+  {
+    id: 'target-audience-profile',
+    category: 'Audiência e Contexto',
+    question: 'Qual é o perfil específico e detalhado do seu público-alvo?',
+    type: 'textarea',
+    placeholder: 'Ex: Pessoas de 25-45 anos, formadas em áreas não-técnicas, trabalham em escritórios, se sentem presas na carreira atual, ganham entre R$3-8K/mês, passam 2h/dia no Instagram',
+    help: 'Descreva demograficamente e psicograficamente sua audiência ideal',
+    required: true
+  },
+  {
+    id: 'current-pain-frustration',
+    category: 'Audiência e Contexto',
+    question: 'Qual é a dor/frustração principal que sua audiência sente HOJE?',
+    type: 'textarea',
+    placeholder: 'Ex: Se sentem presos em empregos que odeiam, trabalham 10h/dia ganhando pouco, veem colegas sendo promovidos enquanto ficam estagnados, acordam já cansados pensando no trabalho',
+    help: 'A dor emocional diária que sua audiência experimenta',
+    required: true
+  },
+  {
+    id: 'main-objections-fears',
+    category: 'Audiência e Contexto',
+    question: 'Quais são as 5 principais objeções/medos que impedem sua audiência de agir?',
+    type: 'textarea',
+    placeholder: 'Ex: 1) "Sou muito velho para mudar" 2) "Não tenho tempo" 3) "Já tentei antes e falhei" 4) "É muito difícil/técnico" 5) "E se eu gastar dinheiro e não conseguir?"',
+    help: 'Liste as objeções mais comuns que você ouve ou observa',
+    required: true
+  },
+
+  // 💫 3. PROMESSAS E TRANSFORMAÇÕES (8 perguntas - 6 existentes + 2 novas)
   {
     id: 'main-benefit',
     category: 'Promessas e Transformações',
@@ -97,8 +126,26 @@ export const emailsQuestions = [
     help: 'Tempo realista para ver os primeiros resultados',
     required: true
   },
+  {
+    id: 'dream-scenario',
+    category: 'Promessas e Transformações',
+    question: 'Qual é o cenário dos sonhos da sua audiência? Como seria a vida ideal deles?',
+    type: 'textarea',
+    placeholder: 'Ex: Trabalhar de casa, ter flexibilidade de horário, ganhar R$15K+/mês fazendo o que gosta, viajar enquanto trabalha, ter reconhecimento profissional, ser respeitado pela família',
+    help: 'Descreva detalhadamente o futuro ideal que sua audiência deseja',
+    required: true
+  },
+  {
+    id: 'current-situation-context',
+    category: 'Promessas e Transformações',
+    question: 'Qual é a situação/contexto atual típico da sua audiência?',
+    type: 'textarea',
+    placeholder: 'Ex: Trabalham 8-10h/dia em escritórios, têm 1-2h livres por noite, estão endividados, moram com pais ou pagam aluguel alto, sentem pressão familiar para "ter estabilidade"',
+    help: 'Contexto real da vida diária da sua audiência hoje',
+    required: true
+  },
 
-  // 📖 3. STORYTELLING E AUTORIDADE (4 perguntas)
+  // 📖 4. STORYTELLING E AUTORIDADE (5 perguntas - 4 existentes + 1 nova)
   {
     id: 'personal-story',
     category: 'Storytelling e Autoridade',
@@ -135,8 +182,17 @@ export const emailsQuestions = [
     help: 'Caso de sucesso específico com resultados mensuráveis',
     required: true
   },
+  {
+    id: 'community-context',
+    category: 'Storytelling e Autoridade',
+    question: 'Qual é o contexto da sua comunidade/audiência? Como eles se conectam com você?',
+    type: 'textarea',
+    placeholder: 'Ex: Grupo no Telegram com 25K membros, YouTube com 180K inscritos, lives semanais com 3-5K pessoas, comunidade muito engajada que comenta e compartilha experiências',
+    help: 'Descreva o relacionamento e engajamento da sua audiência',
+    required: true
+  },
 
-  // 📚 4. CONTEÚDO DAS AULAS (5 perguntas)
+  // 📚 5. CONTEÚDO DAS AULAS (5 perguntas)
   {
     id: 'class1-content',
     category: 'Conteúdo das Aulas',
@@ -183,7 +239,7 @@ export const emailsQuestions = [
     required: true
   },
 
-  // 💰 5. OFERTA E VALORES (5 perguntas)
+  // 💰 6. OFERTA E VALORES (5 perguntas)
   {
     id: 'pricing',
     category: 'Oferta e Valores',
@@ -230,7 +286,7 @@ export const emailsQuestions = [
     required: true
   },
 
-  // 🎁 6. BENEFÍCIOS E URGÊNCIA (5 perguntas)
+  // 🎁 7. BENEFÍCIOS E URGÊNCIA (6 perguntas - 5 existentes + 1 nova)
   {
     id: 'main-bonuses',
     category: 'Benefícios e Urgência',
@@ -275,7 +331,23 @@ export const emailsQuestions = [
     placeholder: 'Link do grupo/comunidade:\nLink para ativar lembrete (aulas 1, 2 e 3):\nLink de assistir ao vivo:\nLink da página de vendas (normal e VIP):\nLink de checkout/inscrição:\nLink de pagamento alternativo:',
     help: 'Um link por linha com descrição',
     required: true
+  },
+  {
+    id: 'biggest-specific-fear',
+    category: 'Benefícios e Urgência',
+    question: 'Qual é o maior medo específico da sua audiência relacionado ao seu nicho/produto?',
+    type: 'textarea',
+    placeholder: 'Ex: Medo de "perder tempo estudando programação e descobrir que não serve para isso", "investir dinheiro e não conseguir emprego", "família achar que é furada", "ser enganado por mais um curso"',
+    help: 'O medo mais profundo e específico relacionado à sua área/produto',
+    required: true
   }
 ];
 
-// Total de 29 perguntas organizadas nas 6 categorias principais
+// Total de 36 perguntas organizadas em 7 categorias estratégicas
+// 🎯 Identificação Básica: 4 perguntas
+// 👥 Audiência e Contexto: 3 perguntas (NOVAS)
+// 💫 Promessas e Transformações: 8 perguntas (6 existentes + 2 novas)
+// 📖 Storytelling e Autoridade: 5 perguntas (4 existentes + 1 nova)
+// 📚 Conteúdo das Aulas: 5 perguntas
+// 💰 Oferta e Valores: 5 perguntas
+// 🎁 Benefícios e Urgência: 6 perguntas (5 existentes + 1 nova)
