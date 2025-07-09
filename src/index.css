@@ -48,4 +48,142 @@
     @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50;
     @apply focus:border-transparent;
   }
+
+  /* Elegant Continue Button */
+  .btn-continue {
+    @apply relative inline-flex items-center justify-center;
+    @apply px-8 py-4 text-white font-semibold rounded-xl;
+    @apply bg-gradient-to-r from-primary via-primary-dark to-primary;
+    @apply hover:from-primary-dark hover:via-primary hover:to-primary-dark;
+    @apply transform transition-all duration-300 ease-out;
+    @apply hover:scale-105 hover:-translate-y-1;
+    @apply shadow-lg hover:shadow-xl;
+    @apply focus:outline-none focus:ring-4 focus:ring-primary/30;
+    @apply before:absolute before:inset-0 before:rounded-xl;
+    @apply before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent;
+    @apply before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300;
+    @apply overflow-hidden;
+  }
+
+  .btn-continue-icon {
+    @apply mr-3 transition-transform duration-300;
+  }
+  
+  .group:hover .btn-continue-icon {
+    @apply rotate-12;
+  }
+
+  .btn-continue-text {
+    @apply relative z-10;
+  }
+
+  /* Phase Selection Cards */
+  .phase-card {
+    @apply relative p-6 rounded-xl border-2 cursor-pointer;
+    @apply transition-all duration-300 ease-out;
+    @apply hover:scale-[1.02] hover:-translate-y-1;
+    @apply bg-white dark:bg-secondary/50 backdrop-blur-sm;
+    @apply hover:shadow-xl hover:shadow-primary/10;
+    @apply overflow-hidden;
+  }
+
+  .phase-card.selected {
+    @apply border-primary bg-gradient-to-br from-primary/5 to-primary/10;
+    @apply shadow-lg shadow-primary/20;
+  }
+
+  .phase-card:not(.selected) {
+    @apply border-gray-200 dark:border-gray-600;
+    @apply hover:border-primary/40;
+  }
+
+  .phase-card::before {
+    @apply content-[''] absolute top-0 left-0 w-full h-1;
+    @apply bg-gradient-to-r from-primary to-primary-light;
+    @apply transform scale-x-0 transition-transform duration-300;
+  }
+  
+  .group:hover .phase-card::before,
+  .phase-card:hover::before {
+    @apply scale-x-100;
+  }
+
+  .phase-card.selected::before {
+    @apply scale-x-100;
+  }
+
+  /* Stats Cards Enhancement */
+  .stats-card {
+    @apply bg-white dark:bg-secondary/80 backdrop-blur-sm rounded-xl p-6;
+    @apply border border-gray-100 dark:border-gray-700;
+    @apply transition-all duration-300 hover:shadow-lg hover:scale-105;
+    @apply hover:border-primary/30;
+  }
+
+  /* Progress Bar Enhancement */
+  .progress-container {
+    @apply relative w-full bg-gray-200 dark:bg-secondary-light rounded-full h-3;
+    @apply overflow-hidden shadow-inner;
+  }
+
+  .progress-bar {
+    @apply bg-gradient-to-r from-primary via-primary-light to-primary;
+    @apply h-full rounded-full transition-all duration-700 ease-out;
+    @apply relative overflow-hidden;
+  }
+
+  .progress-bar::after {
+    @apply content-[''] absolute top-0 left-0 w-full h-full;
+    @apply bg-gradient-to-r from-transparent via-white/30 to-transparent;
+    @apply transform -skew-x-12 -translate-x-full;
+    @apply animate-[shimmer_2s_infinite];
+  }
+
+  /* Action Buttons Enhancement */
+  .action-btn {
+    @apply flex items-center space-x-2 px-4 py-3 rounded-xl;
+    @apply transition-all duration-300 transform hover:scale-105;
+    @apply font-medium shadow-md hover:shadow-lg;
+    @apply focus:outline-none focus:ring-2 focus:ring-opacity-50;
+  }
+
+  .action-btn-primary {
+    @apply action-btn bg-gradient-to-r from-primary to-primary-dark;
+    @apply text-white hover:from-primary-dark hover:to-primary;
+    @apply focus:ring-primary;
+  }
+
+  .action-btn-secondary {
+    @apply action-btn bg-gray-100 dark:bg-secondary-light;
+    @apply text-gray-700 dark:text-gray-200;
+    @apply hover:bg-gray-200 dark:hover:bg-secondary;
+    @apply focus:ring-gray-400;
+  }
+
+  /* Email Content Cards */
+  .email-card {
+    @apply bg-gradient-to-br from-gray-50 to-gray-100;
+    @apply dark:from-secondary/60 dark:to-secondary/80;
+    @apply rounded-xl p-6 relative backdrop-blur-sm;
+    @apply border border-gray-200 dark:border-gray-600;
+    @apply transition-all duration-300 hover:shadow-lg;
+    @apply hover:border-primary/30;
+  }
+
+  /* Copy Button Enhancement */
+  .copy-btn {
+    @apply absolute top-4 right-4 p-3 rounded-xl;
+    @apply bg-white/80 dark:bg-secondary-light/80 backdrop-blur-sm;
+    @apply hover:bg-white dark:hover:bg-secondary-light;
+    @apply transition-all duration-300 transform hover:scale-110;
+    @apply shadow-md hover:shadow-lg;
+    @apply border border-gray-200 dark:border-gray-600;
+    @apply hover:border-primary/50;
+  }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%) skewX(-12deg);
+  }
 }

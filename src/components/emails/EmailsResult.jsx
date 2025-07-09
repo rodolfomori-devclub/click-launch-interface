@@ -234,22 +234,26 @@ const EmailsResult = ({ result, onStartOver, onBackToQuestions, canContinue, onC
           )}
         </p>
         
-        {/* Progress Bar */}
+        {/* Enhanced Progress Bar */}
         {result?.currentBatch && result?.totalBatches && (
-          <div className="mt-4">
-            <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
-              <span>Progresso da Sequência</span>
-              <span>{Math.round((result.currentBatch / result.totalBatches) * 100)}%</span>
+          <div className="mt-6">
+            <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 mb-3">
+              <span className="font-medium">Progresso da Sequência</span>
+              <span className="font-bold text-primary">{Math.round((result.currentBatch / result.totalBatches) * 100)}%</span>
             </div>
-            <div className="w-full bg-gray-200 dark:bg-secondary-light rounded-full h-2">
+            <div className="progress-container">
               <div 
-                className="bg-gradient-to-r from-primary to-primary-light h-2 rounded-full transition-all duration-500 ease-out"
+                className="progress-bar"
                 style={{ width: `${(result.currentBatch / result.totalBatches) * 100}%` }}
               ></div>
             </div>
-            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-500 mt-1">
+            <div className="flex justify-between text-xs mt-2">
               {Array.from({ length: result.totalBatches }, (_, i) => (
-                <span key={i} className={`${i < result.currentBatch ? 'text-primary font-medium' : ''}`}>
+                <span key={i} className={`transition-all duration-300 ${
+                  i < result.currentBatch 
+                    ? 'text-primary font-bold scale-110' 
+                    : 'text-gray-400 dark:text-gray-600'
+                }`}>
                   F{i + 1}
                 </span>
               ))}
@@ -259,14 +263,14 @@ const EmailsResult = ({ result, onStartOver, onBackToQuestions, canContinue, onC
         
         {/* Continue Button at Top */}
         {shouldShowContinueButton && !isGeneratingStatus && !isRetryingStatus && (
-          <div className="mt-4">
+          <div className="mt-6">
             <button
               onClick={handleContinue}
-              className="flex items-center space-x-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors font-medium shadow-lg"
+              className="btn-continue group"
             >
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              <span>
-                🚀 Continuar para Fase {result?.currentBatch ? result.currentBatch + 1 : 'Próxima'}/5
+              <span className="btn-continue-icon">🚀</span>
+              <span className="btn-continue-text">
+                Continuar para Fase {result?.currentBatch ? result.currentBatch + 1 : 'Próxima'}/5
                 {result?.nextPhaseName && ` - ${result.nextPhaseName}`}
               </span>
             </button>
@@ -274,68 +278,88 @@ const EmailsResult = ({ result, onStartOver, onBackToQuestions, canContinue, onC
         )}
       </div>
 
-      {/* Stats Cards */}
+      {/* Enhanced Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div className="card">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-lg flex items-center justify-center">
-              <EnvelopeIcon className="w-6 h-6 text-green-600 dark:text-green-400" />
+        <div className="stats-card group">
+          <div className="flex items-center space-x-4">
+            <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+              <EnvelopeIcon className="w-7 h-7 text-white" />
             </div>
-            <div>
-              <p className="text-2xl font-bold text-secondary dark:text-white">
+            <div className="flex-1">
+              <p className="text-2xl font-bold text-secondary dark:text-white mb-1">
                 {emails.length}
               </p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Emails</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Emails Gerados</p>
+              <div className="w-full bg-green-100 dark:bg-green-900/20 rounded-full h-1 mt-2">
+                <div className="bg-green-500 h-1 rounded-full w-full transition-all duration-500"></div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="card">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
-              <BookmarkIcon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+        <div className="stats-card group">
+          <div className="flex items-center space-x-4">
+            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+              <BookmarkIcon className="w-7 h-7 text-white" />
             </div>
-            <div>
-              <p className="text-2xl font-bold text-secondary dark:text-white">
+            <div className="flex-1">
+              <p className="text-2xl font-bold text-secondary dark:text-white mb-1">
                 {result?.answeredQuestions || 0}
               </p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Respostas</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Respostas Base</p>
+              <div className="w-full bg-blue-100 dark:bg-blue-900/20 rounded-full h-1 mt-2">
+                <div className="bg-blue-500 h-1 rounded-full w-full transition-all duration-500"></div>
+              </div>
             </div>
           </div>
         </div>
 
         {result?.currentBatch && result?.totalBatches && (
-          <div className="card">
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
-                <span className="text-purple-600 dark:text-purple-400 font-bold text-lg">
+          <div className="stats-card group">
+            <div className="flex items-center space-x-4">
+              <div className="w-14 h-14 bg-gradient-to-br from-primary to-primary-dark rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                <span className="text-white font-bold text-xl">
                   {result.currentBatch}
                 </span>
               </div>
-              <div>
-                <p className="text-2xl font-bold text-secondary dark:text-white">
-                  {result.currentBatch}/{result.totalBatches}
+              <div className="flex-1">
+                <p className="text-2xl font-bold text-secondary dark:text-white mb-1">
+                  Fase {result.currentBatch}/{result.totalBatches}
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {result.isComplete ? 'Completo' : 'Fase Atual'}
+                  {result.isComplete ? '✅ Concluída' : '🔄 Atual'}
                 </p>
+                <div className="w-full bg-primary/20 rounded-full h-1 mt-2">
+                  <div 
+                    className="bg-primary h-1 rounded-full transition-all duration-700"
+                    style={{ width: `${(result.currentBatch / result.totalBatches) * 100}%` }}
+                  ></div>
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        <div className="card">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-              <span className="text-primary font-bold text-lg">📧</span>
+        <div className="stats-card group">
+          <div className="flex items-center space-x-4">
+            <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+              <span className="text-white text-2xl">⏰</span>
             </div>
-            <div>
-              <p className="text-sm font-medium text-secondary dark:text-white">
-                Gerado em
+            <div className="flex-1">
+              <p className="text-lg font-bold text-secondary dark:text-white mb-1">
+                Criado em
               </p>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                {result?.generatedAt ? new Date(result.generatedAt).toLocaleDateString('pt-BR') : 'Agora'}
+                {result?.generatedAt ? new Date(result.generatedAt).toLocaleDateString('pt-BR', {
+                  day: '2-digit',
+                  month: '2-digit', 
+                  hour: '2-digit',
+                  minute: '2-digit'
+                }) : 'Agora'}
               </p>
+              <div className="w-full bg-purple-100 dark:bg-purple-900/20 rounded-full h-1 mt-2">
+                <div className="bg-purple-500 h-1 rounded-full w-full transition-all duration-500"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -343,31 +367,33 @@ const EmailsResult = ({ result, onStartOver, onBackToQuestions, canContinue, onC
 
       {/* Content */}
       <div className="card">
-        {/* Action Buttons */}
+        {/* Enhanced Action Buttons */}
         {!isGeneratingStatus && (
-          <div className="flex flex-wrap gap-3 mb-6 pb-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex flex-wrap gap-4 mb-8 pb-6 border-b border-gray-200/50 dark:border-gray-700/50">
             {shouldShowContinueButton && (
               <button
                 onClick={handleContinue}
-                className="flex items-center space-x-2 px-4 py-2 bg-orange-100 dark:bg-orange-900/20 hover:bg-orange-200 dark:hover:bg-orange-900/40 text-orange-800 dark:text-orange-200 rounded-lg transition-colors font-medium"
+                className="btn-continue group"
               >
-                <div className="w-5 h-5 border-2 border-orange-600 border-t-transparent rounded-full animate-spin"></div>
-                <span>Continuar Fase {result?.currentBatch ? result.currentBatch + 1 : 'Próxima'}/5</span>
+                <span className="btn-continue-icon">🚀</span>
+                <span className="btn-continue-text">
+                  Continuar Fase {result?.currentBatch ? result.currentBatch + 1 : 'Próxima'}/5
+                </span>
               </button>
             )}
             
             <button
               onClick={handleCopyContent}
-              className="flex items-center space-x-2 px-4 py-2 bg-gray-100 dark:bg-secondary-light hover:bg-gray-200 dark:hover:bg-secondary rounded-lg transition-colors"
+              className="action-btn-secondary"
             >
               <ClipboardIcon className="w-5 h-5" />
-              <span>{copied ? 'Copiado!' : 'Copiar Todos'}</span>
+              <span>{copied ? '✅ Copiado!' : 'Copiar Todos'}</span>
             </button>
 
             <button
               onClick={handleExportPDF}
               disabled={isExporting}
-              className="flex items-center space-x-2 px-4 py-2 bg-gray-100 dark:bg-secondary-light hover:bg-gray-200 dark:hover:bg-secondary rounded-lg transition-colors disabled:opacity-50"
+              className="action-btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isExporting ? (
                 <div className="w-5 h-5 border-2 border-gray-600 border-t-transparent rounded-full animate-spin"></div>
@@ -380,12 +406,12 @@ const EmailsResult = ({ result, onStartOver, onBackToQuestions, canContinue, onC
             <button
               onClick={handleSaveEmails}
               disabled={isSaving}
-              className="btn-primary px-4 py-2 disabled:opacity-50"
+              className="action-btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSaving ? (
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               ) : (
-                <BookmarkIcon className="w-5 h-5 mr-2" />
+                <BookmarkIcon className="w-5 h-5" />
               )}
               <span>{isSaving ? 'Salvando...' : 'Salvar Emails'}</span>
             </button>
@@ -418,10 +444,10 @@ const EmailsResult = ({ result, onStartOver, onBackToQuestions, canContinue, onC
             </div>
           ) : (
             emails.map((email, index) => (
-              <div key={email.id} className="bg-gray-50 dark:bg-secondary rounded-lg p-6 relative">
+              <div key={email.id} className="email-card">
                 <button
                   onClick={() => handleCopySection(email.content, index)}
-                  className="absolute top-4 right-4 p-2 bg-white dark:bg-secondary-light rounded-lg hover:bg-gray-100 dark:hover:bg-secondary transition-colors"
+                  className="copy-btn"
                   title="Copiar este email"
                 >
                   {copiedSection === index ? (
@@ -431,7 +457,7 @@ const EmailsResult = ({ result, onStartOver, onBackToQuestions, canContinue, onC
                   )}
                 </button>
                 
-                <pre className="whitespace-pre-wrap text-gray-800 dark:text-gray-200 font-mono text-sm pr-12">
+                <pre className="whitespace-pre-wrap text-gray-800 dark:text-gray-200 font-mono text-sm pr-16 leading-relaxed">
                   {email.content}
                 </pre>
               </div>
@@ -439,16 +465,23 @@ const EmailsResult = ({ result, onStartOver, onBackToQuestions, canContinue, onC
           )}
         </div>
 
-        {/* Continue Button at Bottom */}
+        {/* Enhanced Continue Button at Bottom */}
         {shouldShowContinueButton && !isGeneratingStatus && !isRetryingStatus && (
-          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <div className="mt-10 pt-8 border-t border-gray-200/50 dark:border-gray-700/50">
             <div className="flex justify-center">
               <button
                 onClick={handleContinue}
-                className="flex items-center space-x-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-lg transition-all transform hover:scale-105 font-medium shadow-xl text-lg"
+                className="btn-continue group text-lg px-10 py-5"
               >
-                <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>🚀 Continuar para Fase {result?.currentBatch ? result.currentBatch + 1 : 'Próxima'}/5 - {result?.nextPhaseName || 'Próxima Fase'}</span>
+                <span className="btn-continue-icon text-2xl">🚀</span>
+                <span className="btn-continue-text">
+                  Continuar para Fase {result?.currentBatch ? result.currentBatch + 1 : 'Próxima'}/5
+                  {result?.nextPhaseName && (
+                    <span className="block text-sm opacity-90 mt-1">
+                      {result.nextPhaseName}
+                    </span>
+                  )}
+                </span>
               </button>
             </div>
           </div>

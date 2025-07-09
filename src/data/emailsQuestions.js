@@ -1,5 +1,11 @@
-export const emailsQuestions = [
-  // 🎯 1. IDENTIFICAÇÃO BÁSICA (4 perguntas)
+// 🎯 SISTEMA DE QUESTIONÁRIOS EM 3 NÍVEIS
+// Cada nível produz emails com diferentes níveis de personalização e qualidade
+
+// ⚡ NÍVEL RÁPIDO - 18 perguntas essenciais (15-20 min)
+// Resultado: Emails mais SUPERFICIAIS mas funcionais
+// Ideal para: Testes rápidos, validação de conceito, primeira experiência
+export const emailsQuestionsRapido = [
+  // 🎯 IDENTIFICAÇÃO BÁSICA (4 perguntas)
   {
     id: 'event-name',
     category: 'Identificação Básica',
@@ -42,14 +48,14 @@ export const emailsQuestions = [
     required: true
   },
 
-  // 👥 2. AUDIÊNCIA E CONTEXTO (3 perguntas estratégicas)
+  // 👥 AUDIÊNCIA BÁSICA (2 perguntas essenciais)
   {
     id: 'target-audience-profile',
     category: 'Audiência e Contexto',
-    question: 'Qual é o perfil específico e detalhado do seu público-alvo?',
+    question: 'Qual é o perfil específico do seu público-alvo?',
     type: 'textarea',
-    placeholder: 'Ex: Pessoas de 25-45 anos, formadas em áreas não-técnicas, trabalham em escritórios, se sentem presas na carreira atual, ganham entre R$3-8K/mês, passam 2h/dia no Instagram',
-    help: 'Descreva demograficamente e psicograficamente sua audiência ideal',
+    placeholder: 'Ex: Pessoas de 25-45 anos, formadas em áreas não-técnicas, trabalham em escritórios, se sentem presas na carreira atual',
+    help: 'Descreva demograficamente sua audiência ideal',
     required: true
   },
   {
@@ -57,21 +63,12 @@ export const emailsQuestions = [
     category: 'Audiência e Contexto',
     question: 'Qual é a dor/frustração principal que sua audiência sente HOJE?',
     type: 'textarea',
-    placeholder: 'Ex: Se sentem presos em empregos que odeiam, trabalham 10h/dia ganhando pouco, veem colegas sendo promovidos enquanto ficam estagnados, acordam já cansados pensando no trabalho',
+    placeholder: 'Ex: Se sentem presos em empregos que odeiam, trabalham 10h/dia ganhando pouco, veem colegas sendo promovidos',
     help: 'A dor emocional diária que sua audiência experimenta',
     required: true
   },
-  {
-    id: 'main-objections-fears',
-    category: 'Audiência e Contexto',
-    question: 'Quais são as 5 principais objeções/medos que impedem sua audiência de agir?',
-    type: 'textarea',
-    placeholder: 'Ex: 1) "Sou muito velho para mudar" 2) "Não tenho tempo" 3) "Já tentei antes e falhei" 4) "É muito difícil/técnico" 5) "E se eu gastar dinheiro e não conseguir?"',
-    help: 'Liste as objeções mais comuns que você ouve ou observa',
-    required: true
-  },
 
-  // 💫 3. PROMESSAS E TRANSFORMAÇÕES (8 perguntas - 6 existentes + 2 novas)
+  // 💫 TRANSFORMAÇÕES ESSENCIAIS (3 perguntas)
   {
     id: 'main-benefit',
     category: 'Promessas e Transformações',
@@ -79,15 +76,6 @@ export const emailsQuestions = [
     type: 'text',
     placeholder: 'Ex: se tornar um programador empregável mesmo começando do zero',
     help: 'A transformação principal que você promete',
-    required: true
-  },
-  {
-    id: 'product-benefit',
-    category: 'Promessas e Transformações',
-    question: 'Qual é o benefício principal do produto?',
-    type: 'text',
-    placeholder: 'Ex: dominar JavaScript, React e Node.js com projetos reais',
-    help: 'Benefício técnico/específico do produto',
     required: true
   },
   {
@@ -100,52 +88,16 @@ export const emailsQuestions = [
     required: true
   },
   {
-    id: 'time-dedication',
-    category: 'Promessas e Transformações',
-    question: 'Quais são os recursos mínimos necessários?',
-    type: 'text',
-    placeholder: 'Ex: apenas um computador e 30 minutos por dia',
-    help: 'Recursos mínimos necessários para começar',
-    required: true
-  },
-  {
-    id: 'limitations-broken',
-    category: 'Promessas e Transformações',
-    question: 'Quais são as 3 principais limitações/crenças que você quebra?',
-    type: 'textarea',
-    placeholder: 'Ex: não precisa de faculdade, experiência prévia ou ser bom em matemática',
-    help: 'Liste as objeções mais comuns que você elimina',
-    required: true
-  },
-  {
-    id: 'minimum-time-results',
-    category: 'Promessas e Transformações',
-    question: 'Qual é o tempo mínimo para resultados iniciais?',
-    type: 'text',
-    placeholder: 'Ex: primeiros resultados em 30 dias',
-    help: 'Tempo realista para ver os primeiros resultados',
-    required: true
-  },
-  {
     id: 'dream-scenario',
     category: 'Promessas e Transformações',
-    question: 'Qual é o cenário dos sonhos da sua audiência? Como seria a vida ideal deles?',
+    question: 'Qual é o cenário dos sonhos da sua audiência?',
     type: 'textarea',
-    placeholder: 'Ex: Trabalhar de casa, ter flexibilidade de horário, ganhar R$15K+/mês fazendo o que gosta, viajar enquanto trabalha, ter reconhecimento profissional, ser respeitado pela família',
-    help: 'Descreva detalhadamente o futuro ideal que sua audiência deseja',
-    required: true
-  },
-  {
-    id: 'current-situation-context',
-    category: 'Promessas e Transformações',
-    question: 'Qual é a situação/contexto atual típico da sua audiência?',
-    type: 'textarea',
-    placeholder: 'Ex: Trabalham 8-10h/dia em escritórios, têm 1-2h livres por noite, estão endividados, moram com pais ou pagam aluguel alto, sentem pressão familiar para "ter estabilidade"',
-    help: 'Contexto real da vida diária da sua audiência hoje',
+    placeholder: 'Ex: Trabalhar de casa, ter flexibilidade de horário, ganhar R$15K+/mês fazendo o que gosta',
+    help: 'Descreva o futuro ideal que sua audiência deseja',
     required: true
   },
 
-  // 📖 4. STORYTELLING E AUTORIDADE (5 perguntas - 4 existentes + 1 nova)
+  // 📖 STORYTELLING BÁSICO (3 perguntas)
   {
     id: 'personal-story',
     category: 'Storytelling e Autoridade',
@@ -153,15 +105,6 @@ export const emailsQuestions = [
     type: 'textarea',
     placeholder: 'Ex: Há 5 anos eu era analista de sistemas desempregado aos 35 anos...',
     help: 'Sua história pessoal de transformação que conecta com a audiência',
-    required: true
-  },
-  {
-    id: 'transforming-decision',
-    category: 'Storytelling e Autoridade',
-    question: 'Qual foi sua decisão transformadora?',
-    type: 'textarea',
-    placeholder: 'Ex: Decidi aprender desenvolvimento web do zero, estudando 14h por dia',
-    help: 'O momento/decisão que mudou sua vida',
     required: true
   },
   {
@@ -182,17 +125,8 @@ export const emailsQuestions = [
     help: 'Caso de sucesso específico com resultados mensuráveis',
     required: true
   },
-  {
-    id: 'community-context',
-    category: 'Storytelling e Autoridade',
-    question: 'Qual é o contexto da sua comunidade/audiência? Como eles se conectam com você?',
-    type: 'textarea',
-    placeholder: 'Ex: Grupo no Telegram com 25K membros, YouTube com 180K inscritos, lives semanais com 3-5K pessoas, comunidade muito engajada que comenta e compartilha experiências',
-    help: 'Descreva o relacionamento e engajamento da sua audiência',
-    required: true
-  },
 
-  // 📚 5. CONTEÚDO DAS AULAS (5 perguntas)
+  // 📚 CONTEÚDO BÁSICO (3 perguntas)
   {
     id: 'class1-content',
     category: 'Conteúdo das Aulas',
@@ -220,26 +154,8 @@ export const emailsQuestions = [
     help: 'Conteúdo especial/exclusivo da terceira aula',
     required: true
   },
-  {
-    id: 'special-tool',
-    category: 'Conteúdo das Aulas',
-    question: 'Qual é a ferramenta/elemento especial que será mostrado?',
-    type: 'text',
-    placeholder: 'Ex: Template de Portfolio que Converte + Checklist de Projetos',
-    help: 'Ferramenta ou elemento exclusivo que será apresentado',
-    required: true
-  },
-  {
-    id: 'preparation-materials',
-    category: 'Conteúdo das Aulas',
-    question: 'Quais materiais os participantes devem preparar?',
-    type: 'text',
-    placeholder: 'Ex: papel e caneta para anotações',
-    help: 'Materiais que os participantes devem ter em mãos',
-    required: true
-  },
 
-  // 💰 6. OFERTA E VALORES (5 perguntas)
+  // 💰 OFERTA ESSENCIAL (3 perguntas)
   {
     id: 'pricing',
     category: 'Oferta e Valores',
@@ -266,7 +182,96 @@ export const emailsQuestions = [
     placeholder: 'Ex: 24 horas após abertura',
     help: 'Prazo limitado da oferta para criar urgência',
     required: true
+  }
+];
+
+// 📋 NÍVEL COMPLETO - 28 perguntas importantes (20-30 min)
+// Resultado: BOA QUALIDADE de emails com personalização adequada
+// Ideal para: Lançamentos sérios, campanhas profissionais, resultados consistentes
+export const emailsQuestionsCompleto = [
+  ...emailsQuestionsRapido,
+
+  // 👥 AUDIÊNCIA APROFUNDADA (+1 pergunta)
+  {
+    id: 'main-objections-fears',
+    category: 'Audiência e Contexto',
+    question: 'Quais são as 5 principais objeções/medos que impedem sua audiência de agir?',
+    type: 'textarea',
+    placeholder: 'Ex: 1) "Sou muito velho para mudar" 2) "Não tenho tempo" 3) "Já tentei antes e falhei" 4) "É muito difícil/técnico" 5) "E se eu gastar dinheiro e não conseguir?"',
+    help: 'Liste as objeções mais comuns que você ouve ou observa',
+    required: true
   },
+
+  // 💫 TRANSFORMAÇÕES APROFUNDADAS (+3 perguntas)
+  {
+    id: 'product-benefit',
+    category: 'Promessas e Transformações',
+    question: 'Qual é o benefício principal do produto?',
+    type: 'text',
+    placeholder: 'Ex: dominar JavaScript, React e Node.js com projetos reais',
+    help: 'Benefício técnico/específico do produto',
+    required: true
+  },
+  {
+    id: 'limitations-broken',
+    category: 'Promessas e Transformações',
+    question: 'Quais são as 3 principais limitações/crenças que você quebra?',
+    type: 'textarea',
+    placeholder: 'Ex: não precisa de faculdade, experiência prévia ou ser bom em matemática',
+    help: 'Liste as objeções mais comuns que você elimina',
+    required: true
+  },
+  {
+    id: 'minimum-time-results',
+    category: 'Promessas e Transformações',
+    question: 'Qual é o tempo mínimo para resultados iniciais?',
+    type: 'text',
+    placeholder: 'Ex: primeiros resultados em 30 dias',
+    help: 'Tempo realista para ver os primeiros resultados',
+    required: true
+  },
+
+  // 📖 STORYTELLING APROFUNDADO (+2 perguntas)
+  {
+    id: 'transforming-decision',
+    category: 'Storytelling e Autoridade',
+    question: 'Qual foi sua decisão transformadora?',
+    type: 'textarea',
+    placeholder: 'Ex: Decidi aprender desenvolvimento web do zero, estudando 14h por dia',
+    help: 'O momento/decisão que mudou sua vida',
+    required: true
+  },
+  {
+    id: 'community-context',
+    category: 'Storytelling e Autoridade',
+    question: 'Qual é o contexto da sua comunidade/audiência?',
+    type: 'textarea',
+    placeholder: 'Ex: Grupo no Telegram com 25K membros, YouTube com 180K inscritos, lives semanais com 3-5K pessoas',
+    help: 'Descreva o relacionamento e engajamento da sua audiência',
+    required: true
+  },
+
+  // 📚 CONTEÚDO APROFUNDADO (+2 perguntas)
+  {
+    id: 'special-tool',
+    category: 'Conteúdo das Aulas',
+    question: 'Qual é a ferramenta/elemento especial que será mostrado?',
+    type: 'text',
+    placeholder: 'Ex: Template de Portfolio que Converte + Checklist de Projetos',
+    help: 'Ferramenta ou elemento exclusivo que será apresentado',
+    required: true
+  },
+  {
+    id: 'preparation-materials',
+    category: 'Conteúdo das Aulas',
+    question: 'Quais materiais os participantes devem preparar?',
+    type: 'text',
+    placeholder: 'Ex: papel e caneta para anotações',
+    help: 'Materiais que os participantes devem ter em mãos',
+    required: true
+  },
+
+  // 💰 OFERTA APROFUNDADA (+2 perguntas)
   {
     id: 'technical-problem',
     category: 'Oferta e Valores',
@@ -284,9 +289,36 @@ export const emailsQuestions = [
     placeholder: 'Ex: Boleto bancário parcelado',
     help: 'Opção de pagamento para usar em reaberturas',
     required: true
+  }
+];
+
+// 🔬 NÍVEL DETALHADO - 36 perguntas completas (30-45 min)  
+// Resultado: ALTA QUALIDADE com máxima personalização e persuasão
+// Ideal para: Lançamentos premium, campanhas de alto ticket, máximos resultados
+export const emailsQuestionsDetalhado = [
+  ...emailsQuestionsCompleto,
+
+  // 💫 TRANSFORMAÇÕES MÁXIMAS (+2 perguntas)
+  {
+    id: 'time-dedication',
+    category: 'Promessas e Transformações',
+    question: 'Quais são os recursos mínimos necessários?',
+    type: 'text',
+    placeholder: 'Ex: apenas um computador e 30 minutos por dia',
+    help: 'Recursos mínimos necessários para começar',
+    required: true
+  },
+  {
+    id: 'current-situation-context',
+    category: 'Promessas e Transformações',
+    question: 'Qual é a situação/contexto atual típico da sua audiência?',
+    type: 'textarea',
+    placeholder: 'Ex: Trabalham 8-10h/dia em escritórios, têm 1-2h livres por noite, estão endividados, moram com pais',
+    help: 'Contexto real da vida diária da sua audiência hoje',
+    required: true
   },
 
-  // 🎁 7. BENEFÍCIOS E URGÊNCIA (6 perguntas - 5 existentes + 1 nova)
+  // 🎁 BENEFÍCIOS E URGÊNCIA MÁXIMA (+6 perguntas)
   {
     id: 'main-bonuses',
     category: 'Benefícios e Urgência',
@@ -337,17 +369,57 @@ export const emailsQuestions = [
     category: 'Benefícios e Urgência',
     question: 'Qual é o maior medo específico da sua audiência relacionado ao seu nicho/produto?',
     type: 'textarea',
-    placeholder: 'Ex: Medo de "perder tempo estudando programação e descobrir que não serve para isso", "investir dinheiro e não conseguir emprego", "família achar que é furada", "ser enganado por mais um curso"',
+    placeholder: 'Ex: Medo de "perder tempo estudando programação e descobrir que não serve para isso", "investir dinheiro e não conseguir emprego"',
     help: 'O medo mais profundo e específico relacionado à sua área/produto',
     required: true
   }
 ];
 
-// Total de 36 perguntas organizadas em 7 categorias estratégicas
-// 🎯 Identificação Básica: 4 perguntas
-// 👥 Audiência e Contexto: 3 perguntas (NOVAS)
-// 💫 Promessas e Transformações: 8 perguntas (6 existentes + 2 novas)
-// 📖 Storytelling e Autoridade: 5 perguntas (4 existentes + 1 nova)
-// 📚 Conteúdo das Aulas: 5 perguntas
-// 💰 Oferta e Valores: 5 perguntas
-// 🎁 Benefícios e Urgência: 6 perguntas (5 existentes + 1 nova)
+// 📊 NÍVEIS DE QUESTIONÁRIO - Resumo
+export const questionnairelevels = {
+  rapido: {
+    name: 'Questionário Rápido',
+    questions: emailsQuestionsRapido,
+    duration: '15-20 min',
+    questionCount: 18,
+    quality: 'Emails mais SUPERFICIAIS',
+    description: 'Ideal para testes, validação de conceito ou primeira experiência',
+    features: [
+      'Informações básicas essenciais',
+      'Emails funcionais mas genéricos',
+      'Boa para validar o sistema',
+      'Menor personalização'
+    ]
+  },
+  completo: {
+    name: 'Questionário Completo',
+    questions: emailsQuestionsCompleto,
+    duration: '20-30 min',
+    questionCount: 28,
+    quality: 'BOA QUALIDADE de emails',
+    description: 'Ideal para lançamentos sérios e campanhas profissionais',
+    features: [
+      'Personalização adequada',
+      'Storytelling convincente',
+      'Objeções bem trabalhadas',
+      'Resultados consistentes'
+    ]
+  },
+  detalhado: {
+    name: 'Questionário Detalhado',
+    questions: emailsQuestionsDetalhado,
+    duration: '30-45 min',
+    questionCount: 36,
+    quality: 'ALTA QUALIDADE com máxima personalização',
+    description: 'Ideal para lançamentos premium e campanhas de alto ticket',
+    features: [
+      'Máxima personalização',
+      'Persuasão profissional',
+      'Todas as objeções cobertas',
+      'Resultados premium'
+    ]
+  }
+};
+
+// Manter compatibilidade com código existente
+export const emailsQuestions = emailsQuestionsDetalhado;
