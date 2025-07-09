@@ -17,6 +17,7 @@ const EmailsResult = ({ result, onStartOver, onBackToQuestions, canContinue, onC
   const [isSaving, setIsSaving] = useState(false);
   
   const isGeneratingStatus = result?.status === 'generating' || isGenerating;
+  const isRetryingStatus = result?.status === 'retrying';
 
   const handleCopyContent = async () => {
     try {
@@ -162,12 +163,14 @@ const EmailsResult = ({ result, onStartOver, onBackToQuestions, canContinue, onC
   const parseEmails = (content) => {
     if (!content) return [];
     
-    // Split by email markers (EMAIL, ##, ***, etc)
-    const sections = content.split(/(?=\*\*EMAIL\s|\*\*E-MAIL\s|##\s|---\s|\*\*\*)/);
+    // Split by email markers with better patterns
+    const sections = content.split(/(?=EMAIL\s+\d+|E-MAIL\s+\d+|\*\*EMAIL\s+\d+|\*\*E-MAIL\s+\d+|##\s+EMAIL\s+\d+|---\s*EMAIL\s+\d+)/i);
+    
     return sections
       .filter(s => s.trim()) // Remove empty sections
-      .filter(s => !s.match(/^[\s\-`*#]+$/)) // Remove sections that are only separators (---, ***, ###, ```)
-      .filter(s => s.trim().length > 10) // Remove very short sections that are likely separators
+      .filter(s => !s.match(/^[\s\-`*#]+$/)) // Remove sections that are only separators
+      .filter(s => s.trim().length > 20) // Remove very short sections
+      .filter(s => s.toLowerCase().includes('email') || s.toLowerCase().includes('assunto')) // Must contain email content
       .map((section, index) => ({
         id: index,
         content: section.trim()
@@ -176,33 +179,56 @@ const EmailsResult = ({ result, onStartOver, onBackToQuestions, canContinue, onC
 
   const emails = parseEmails(result?.content);
 
+  // Determine if continue button should show
+  const shouldShowContinueButton = canContinue || 
+    result?.canContinue || 
+    (result?.isSequentialGeneration && !result?.isComplete && 
+     result?.currentPhaseIndex < 4); // 4 = last phase index (0-4 for 5 phases)
+
+  // Debug log (reduced for cleaner console)
+  if (result && result.currentPhaseIndex < 4) {
+    console.log('🔍 EmailsResult - Phase:', result.currentPhaseIndex + 1, 'shouldShowButton:', shouldShowContinueButton);
+  }
+
+  // Safe continue handler
+  const handleContinue = () => {
+    console.log('🚀 Continue button clicked');
+    if (onContinue) {
+      onContinue();
+    }
+  };
+
   return (
     <div className="max-w-5xl mx-auto animate-fade-in">
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center space-x-3 mb-4">
-          {isGeneratingStatus ? (
+          {isGeneratingStatus || isRetryingStatus ? (
             <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
           ) : (
             <CheckCircleIcon className="w-8 h-8 text-green-500" />
           )}
           <h1 className="text-3xl font-bold text-secondary dark:text-white">
-            {isGeneratingStatus ? 
-              `Gerando Lote ${result?.currentBatch || 1}/6...` : 
-              result?.isComplete ? 
-                '✅ Sequência de 29 Emails Completa' : 
-                `Lote ${result?.currentBatch || 1}/6 Gerado`
+            {isRetryingStatus ? 
+              `⚠️ Tentando novamente - Fase ${result?.currentBatch || 1}/5` :
+              isGeneratingStatus ? 
+                `Gerando Fase ${result?.currentBatch || 1}/5 - ${result?.phaseName || 'Carregando...'}` : 
+                result?.isComplete ? 
+                  '✅ Sequência de 29 Emails Completa' : 
+                  `Fase ${result?.currentBatch || 1}/5 - ${result?.phaseName || 'Concluída'}`
             }
           </h1>
         </div>
         <p className="text-gray-600 dark:text-gray-400">
-          {isGeneratingStatus ? 
-            'Aguarde enquanto o assistente de IA cria sua sequência completa de emails de lançamento...' :
-            `${emails.length} emails gerados com base nas suas ${result?.answeredQuestions || 0} respostas`
+          {isRetryingStatus ?
+            result?.retryMessage || 'API temporariamente sobrecarregada, tentando novamente...' :
+            isGeneratingStatus ? 
+              'Aguarde enquanto o assistente de IA cria sua sequência completa de emails de lançamento...' :
+              `${emails.length} emails gerados com base nas suas ${result?.answeredQuestions || 0} respostas`
           }
           {result?.currentBatch && result?.totalBatches && (
             <span className="ml-2 text-primary font-medium">
-              • Lote {result.currentBatch}/{result.totalBatches}
+              • Fase {result.currentBatch}/{result.totalBatches}
               {result.isComplete && " • ✅ Sequência Completa"}
             </span>
           )}
@@ -224,7 +250,7 @@ const EmailsResult = ({ result, onStartOver, onBackToQuestions, canContinue, onC
             <div className="flex justify-between text-xs text-gray-500 dark:text-gray-500 mt-1">
               {Array.from({ length: result.totalBatches }, (_, i) => (
                 <span key={i} className={`${i < result.currentBatch ? 'text-primary font-medium' : ''}`}>
-                  L{i + 1}
+                  F{i + 1}
                 </span>
               ))}
             </div>
@@ -232,15 +258,16 @@ const EmailsResult = ({ result, onStartOver, onBackToQuestions, canContinue, onC
         )}
         
         {/* Continue Button at Top */}
-        {canContinue && !isGeneratingStatus && (
+        {shouldShowContinueButton && !isGeneratingStatus && !isRetryingStatus && (
           <div className="mt-4">
             <button
-              onClick={onContinue}
+              onClick={handleContinue}
               className="flex items-center space-x-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors font-medium shadow-lg"
             >
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               <span>
-                🚀 Continuar para Lote {result?.currentBatch ? result.currentBatch + 1 : 'Próximo'}/6
+                🚀 Continuar para Fase {result?.currentBatch ? result.currentBatch + 1 : 'Próxima'}/5
+                {result?.nextPhaseName && ` - ${result.nextPhaseName}`}
               </span>
             </button>
           </div>
@@ -290,7 +317,7 @@ const EmailsResult = ({ result, onStartOver, onBackToQuestions, canContinue, onC
                   {result.currentBatch}/{result.totalBatches}
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {result.isComplete ? 'Completo' : 'Lote Atual'}
+                  {result.isComplete ? 'Completo' : 'Fase Atual'}
                 </p>
               </div>
             </div>
@@ -319,13 +346,13 @@ const EmailsResult = ({ result, onStartOver, onBackToQuestions, canContinue, onC
         {/* Action Buttons */}
         {!isGeneratingStatus && (
           <div className="flex flex-wrap gap-3 mb-6 pb-6 border-b border-gray-200 dark:border-gray-700">
-            {canContinue && (
+            {shouldShowContinueButton && (
               <button
-                onClick={onContinue}
+                onClick={handleContinue}
                 className="flex items-center space-x-2 px-4 py-2 bg-orange-100 dark:bg-orange-900/20 hover:bg-orange-200 dark:hover:bg-orange-900/40 text-orange-800 dark:text-orange-200 rounded-lg transition-colors font-medium"
               >
                 <div className="w-5 h-5 border-2 border-orange-600 border-t-transparent rounded-full animate-spin"></div>
-                <span>Continuar Lote {result?.currentBatch ? result.currentBatch + 1 : 'Próximo'}/6</span>
+                <span>Continuar Fase {result?.currentBatch ? result.currentBatch + 1 : 'Próxima'}/5</span>
               </button>
             )}
             
@@ -367,7 +394,19 @@ const EmailsResult = ({ result, onStartOver, onBackToQuestions, canContinue, onC
 
         {/* Emails Content */}
         <div className="space-y-6">
-          {isGeneratingStatus ? (
+          {isRetryingStatus ? (
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-6 border border-yellow-200 dark:border-yellow-800">
+              <div className="flex items-center space-x-3">
+                <div className="w-6 h-6 border-2 border-yellow-600 border-t-transparent rounded-full animate-spin"></div>
+                <div>
+                  <h3 className="font-semibold text-yellow-800 dark:text-yellow-200">Tentando novamente...</h3>
+                  <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
+                    {result?.retryMessage || 'API temporariamente sobrecarregada. O sistema está tentando novamente automaticamente.'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : isGeneratingStatus ? (
             <div className="bg-gray-50 dark:bg-secondary rounded-lg p-6">
               <pre className="whitespace-pre-wrap text-gray-800 dark:text-gray-200 font-mono text-sm">
                 {result?.content || 'Aguarde, a sequência de emails está sendo gerada em tempo real...'}
@@ -401,19 +440,20 @@ const EmailsResult = ({ result, onStartOver, onBackToQuestions, canContinue, onC
         </div>
 
         {/* Continue Button at Bottom */}
-        {canContinue && !isGeneratingStatus && (
+        {shouldShowContinueButton && !isGeneratingStatus && !isRetryingStatus && (
           <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
             <div className="flex justify-center">
               <button
-                onClick={onContinue}
+                onClick={handleContinue}
                 className="flex items-center space-x-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-lg transition-all transform hover:scale-105 font-medium shadow-xl text-lg"
               >
                 <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>🚀 Gerar Lote {result?.currentBatch ? result.currentBatch + 1 : 'Próximo'}/6 ({result?.currentBatch === 5 ? '4' : '5'} emails)</span>
+                <span>🚀 Continuar para Fase {result?.currentBatch ? result.currentBatch + 1 : 'Próxima'}/5 - {result?.nextPhaseName || 'Próxima Fase'}</span>
               </button>
             </div>
           </div>
         )}
+        
 
         {/* Bottom Actions */}
         {!isGeneratingStatus && (
