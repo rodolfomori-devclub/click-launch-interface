@@ -10,7 +10,7 @@ import {
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
-const EmailsResult = ({ result, onStartOver, onBackToQuestions, canContinue, onContinue, isGenerating }) => {
+const EmailsResult = ({ result, onStartOver, onBackToQuestions, canContinue, onContinue, isGenerating, onBackToPhaseSelection }) => {
   const [copied, setCopied] = useState(false);
   const [copiedSection, setCopiedSection] = useState(null);
   const [isExporting, setIsExporting] = useState(false);
@@ -490,21 +490,36 @@ const EmailsResult = ({ result, onStartOver, onBackToQuestions, canContinue, onC
 
         {/* Bottom Actions */}
         {!isGeneratingStatus && (
-          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
-            <button
-              onClick={onStartOver}
-              className="flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
-            >
-              <ArrowLeftIcon className="w-5 h-5" />
-              <span>Criar Nova Sequência</span>
-            </button>
+          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between mb-4">
+              <button
+                onClick={onStartOver}
+                className="flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+              >
+                <ArrowLeftIcon className="w-5 h-5" />
+                <span>Criar Nova Sequência</span>
+              </button>
 
-            <button
-              onClick={onBackToQuestions}
-              className="text-primary hover:text-primary-dark font-medium transition-colors"
-            >
-              Editar Respostas
-            </button>
+              <button
+                onClick={onBackToQuestions}
+                className="text-primary hover:text-primary-dark font-medium transition-colors"
+              >
+                Editar Respostas
+              </button>
+            </div>
+            
+            {/* Botão para voltar à seleção de fase - apenas para geração individual de fase */}
+            {onBackToPhaseSelection && result?.generationType === 'phase' && (
+              <div className="flex justify-center">
+                <button
+                  onClick={onBackToPhaseSelection}
+                  className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/25"
+                >
+                  <span className="text-lg">🎯</span>
+                  <span className="font-medium">Gerar Nova Fase</span>
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -412,6 +412,13 @@ const CentralEmails = () => {
     setCurrentQuestionIndex(0);
   };
 
+  const handleBackToPhaseSelection = () => {
+    setEmailsResult(null);
+    setIsGenerating(false);
+    setCanContinue(false);
+    setCurrentStep('options');
+  };
+
   const handleStartGeneration = () => {
     console.log('🚀 Starting generation with type:', generationType);
     // Reset sequential generation state
@@ -878,6 +885,7 @@ const CentralEmails = () => {
             result={emailsResult}
             onStartOver={handleStartOver}
             onBackToQuestions={handleBackToQuestions}
+            onBackToPhaseSelection={handleBackToPhaseSelection}
             canContinue={canContinue}
             onContinue={handleContinueGeneration}
             isGenerating={isGenerating}
