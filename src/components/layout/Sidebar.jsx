@@ -20,10 +20,10 @@ import {
 
 const menuItems = [
   { id: 'home', name: 'Dashboard', icon: HomeIcon, path: '/', active: true },
-  { id: 'analises-salvas', name: 'Análises Salvas', icon: ArchiveBoxIcon, path: '/analises-salvas', active: true },
-  { id: 'linha-editorial', name: 'Linha Editorial', icon: DocumentTextIcon, path: '/linha-editorial', active: true },
-  { id: 'central-mensagens', name: 'Central de Mensagens', icon: ChatBubbleLeftRightIcon, path: '/central-mensagens', active: true },
   { id: 'central-emails', name: 'Central de Emails', icon: EnvelopeIcon, path: '/central-emails', active: true },
+  { id: 'analises-salvas', name: 'Análises Salvas', icon: ArchiveBoxIcon, path: '/analises-salvas', active: true },
+  { id: 'linha-editorial', name: 'Linha Editorial', icon: DocumentTextIcon, path: '/linha-editorial', active: false },
+  { id: 'central-mensagens', name: 'Central de Mensagens', icon: ChatBubbleLeftRightIcon, path: '/central-mensagens', active: false },
   { id: 'planejar-lancamento', name: 'Planejar um Lançamento Completo', icon: RocketLaunchIcon, path: '/planejar-lancamento', active: false },
   { id: 'guia-oferta', name: 'Guia de Oferta', icon: BookOpenIcon, path: '/guia-oferta', active: false },
   { id: 'central-cpls', name: 'Central de CPL\'s', icon: MegaphoneIcon, path: '/central-cpls', active: false },
