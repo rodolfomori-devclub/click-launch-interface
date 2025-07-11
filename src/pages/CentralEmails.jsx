@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { ChevronLeftIcon, CheckIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { ChevronLeftIcon } from '@heroicons/react/24/outline';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { emailsQuestions, questionnairelevels } from '../data/emailsQuestions';
 import QuestionCard from '../components/editorial/QuestionCard';
 import EmailsResult from '../components/emails/EmailsResult';
+import { questionnairelevels } from '../data/emailsQuestions';
 
 const CentralEmails = () => {
   const [currentStep, setCurrentStep] = useState('level-selection'); // 'level-selection', 'questionnaire', 'options', 'generating', 'results'
@@ -13,21 +13,21 @@ const CentralEmails = () => {
   const [emailsResult, setEmailsResult] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [canContinue, setCanContinue] = useState(false);
-  
+
   // Sistema de lotes
   const [currentBatch, setCurrentBatch] = useState(1);
   const [isSequenceComplete, setIsSequenceComplete] = useState(false);
   const [allGeneratedContent, setAllGeneratedContent] = useState('');
-  
+
   // Configurações de geração
   const [generationType, setGenerationType] = useState('full'); // 'full', 'phase'
   const [selectedPhase, setSelectedPhase] = useState('pre-launch');
-  
+
   // Controle de geração sequencial
   const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
   const [completedPhases, setCompletedPhases] = useState([]);
   const [isSequentialGeneration, setIsSequentialGeneration] = useState(false);
-  
+
   // Definir as fases disponíveis
   const phases = [
     { key: 'pre-launch', name: 'Pré-lançamento', description: 'Confirmação e Véspera', emails: [1, 2] },
@@ -46,12 +46,12 @@ const CentralEmails = () => {
   useEffect(() => {
     const savedEmailsAnswers = localStorage.getItem('emailsAnswers');
     const savedLevel = localStorage.getItem('emailsLevel');
-    
+
     if (savedEmailsAnswers) {
       const emailsAnswers = JSON.parse(savedEmailsAnswers);
       setAnswers(emailsAnswers);
     }
-    
+
     if (savedLevel) {
       setSelectedLevel(savedLevel);
     }
@@ -62,7 +62,7 @@ const CentralEmails = () => {
     if (currentStep === 'questionnaire' && currentQuestionIndex === 0) {
       const currentQuestions = getCurrentQuestions();
       const firstUnanswered = currentQuestions.findIndex(q => !answers[q.id] || !answers[q.id].trim());
-      
+
       if (firstUnanswered > 0) {
         setCurrentQuestionIndex(firstUnanswered);
       }
@@ -110,7 +110,7 @@ const CentralEmails = () => {
       isSequentialGeneration,
       completedPhases
     });
-    
+
     setIsGenerating(true);
     setCanContinue(false);
     setCurrentStep('generating');
@@ -118,7 +118,7 @@ const CentralEmails = () => {
     try {
       // Determinar qual fase gerar
       let phaseToGenerate = null;
-      
+
       if (specificPhase) {
         // Fase específica (para geração individual)
         phaseToGenerate = specificPhase;
@@ -131,21 +131,21 @@ const CentralEmails = () => {
         // Garantir que está em modo sequencial
         setIsSequentialGeneration(true);
       }
-      
+
       console.log('📧 Phase determined:', {
         phaseToGenerate,
         isSequentialGeneration,
         currentPhaseIndex,
         phaseName: phases[currentPhaseIndex]?.name
       });
-      
+
       // Preparar payload
       let requestBody = {
         answers: answers,
         questions: getCurrentQuestions(),
         questionnaireLevel: selectedLevel
       };
-      
+
       // Sempre enviar o parâmetro phase para Claude
       if (phaseToGenerate) {
         requestBody.phase = phaseToGenerate;
@@ -153,8 +153,8 @@ const CentralEmails = () => {
         requestBody.isSequential = isSequentialGeneration;
         console.log('🔄 Generating phase:', phaseToGenerate, 'Sequential:', isSequentialGeneration);
       }
-      
-      const response = await fetch('http://localhost:3001/api/emails/generate-stream', {
+
+      const response = await fetch(import.meta.env.VITE_API_URL + '/api/emails/generate-stream', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -180,10 +180,10 @@ const CentralEmails = () => {
           if (line.startsWith('data: ')) {
             try {
               const dataString = line.slice(6).trim();
-              
+
               // Skip empty data lines
               if (!dataString) continue;
-              
+
               // Try to parse JSON data
               let data;
               try {
@@ -192,7 +192,7 @@ const CentralEmails = () => {
                 console.warn('Failed to parse SSE data as JSON:', dataString);
                 // Treat as plain text content if JSON parsing fails
                 newBatchContent += dataString;
-                
+
                 const combinedContent = allGeneratedContent + newBatchContent;
                 setEmailsResult(prev => ({
                   ...prev,
@@ -205,7 +205,7 @@ const CentralEmails = () => {
                 }));
                 continue;
               }
-              
+
               // Handle structured SSE data
               if (data && typeof data === 'object') {
                 if (data.type === 'metadata') {
@@ -215,10 +215,10 @@ const CentralEmails = () => {
                   const content = data.data;
                   if (content && typeof content === 'string' && content !== '[object Object]') {
                     newBatchContent += content;
-                    
+
                     // Combinar conteúdo anterior com novo conteúdo
                     const combinedContent = allGeneratedContent + newBatchContent;
-                    
+
                     setEmailsResult(prev => ({
                       ...prev,
                       ...metadata,
@@ -235,19 +235,19 @@ const CentralEmails = () => {
                   // Atualizar conteúdo total gerado
                   const updatedAllContent = allGeneratedContent + newBatchContent;
                   setAllGeneratedContent(updatedAllContent);
-                  
+
                   // Marcar fase atual como completa
                   const currentPhase = phaseToGenerate || phases[currentPhaseIndex].key;
                   const newCompletedPhases = [...completedPhases, currentPhase];
                   setCompletedPhases(newCompletedPhases);
-                  
+
                   // Verificar se é geração sequencial e se há mais fases
                   const effectivePhaseIndex = phaseIndex !== null ? phaseIndex : currentPhaseIndex;
-                  const isSequentialComplete = isSequentialGeneration && 
-                                             (effectivePhaseIndex >= phases.length - 1);
-                  
+                  const isSequentialComplete = isSequentialGeneration &&
+                    (effectivePhaseIndex >= phases.length - 1);
+
                   const isPhaseComplete = metadata?.generationType === 'phase';
-                  
+
                   console.log('🔍 Completion check:', {
                     isSequentialGeneration,
                     currentPhaseIndex,
@@ -259,7 +259,7 @@ const CentralEmails = () => {
                     metadataGenerationType: metadata?.generationType,
                     frontendGenerationType: generationType
                   });
-                  
+
                   const finalResult = {
                     ...metadata,
                     content: updatedAllContent,
@@ -278,7 +278,7 @@ const CentralEmails = () => {
                     nextPhaseName: (phaseIndex !== null ? phaseIndex : currentPhaseIndex) < phases.length - 1 ? phases[(phaseIndex !== null ? phaseIndex : currentPhaseIndex) + 1].name : null
                   };
                   setEmailsResult(finalResult);
-                  
+
                   // Controlar continuação da sequência
                   const shouldContinue = (isSequentialGeneration || metadata?.isSequential || (generationType === 'full')) && !isSequentialComplete;
                   console.log('🎯 Should continue logic:', {
@@ -292,7 +292,7 @@ const CentralEmails = () => {
                     frontendGenerationType: generationType,
                     finalIsSequential: isSequentialGeneration || metadata?.isSequential || (generationType === 'full')
                   });
-                  
+
                   if (shouldContinue) {
                     console.log('🟢 Setting canContinue to TRUE');
                     setCanContinue(true);
@@ -305,7 +305,7 @@ const CentralEmails = () => {
                     setCanContinue(false);
                     setIsSequenceComplete(true);
                   }
-                  
+
                   setIsGenerating(false);
                   console.log('✅ Generation completed:', finalResult);
                   console.log('🔍 Debug info:', {
@@ -325,27 +325,27 @@ const CentralEmails = () => {
                   });
                 } else if (data.type === 'error') {
                   console.error('❌ Server error:', data.data);
-                  
+
                   // Verificar se é erro de API key do Claude
                   if (data.data && data.data.includes('Authentication failed') && data.data.includes('CLAUDE_API_KEY')) {
                     throw new Error('API key do Claude inválida. Verifique o arquivo .env ou altere AI_PROVIDER_EMAILS para "openai"');
                   }
-                  
+
                   // Verificar se é erro de sobrecarga (overloaded)
                   if (data.data && data.data.includes('Overloaded')) {
                     // Não quebrar o stream para erros de sobrecarga, o sistema já vai fazer retry
                     console.warn('⚠️ Claude API temporariamente sobrecarregada, tentando novamente...');
-                    
+
                     // Atualizar o estado para mostrar mensagem de retry
                     setEmailsResult(prev => ({
                       ...prev,
                       status: 'retrying',
                       retryMessage: 'API temporariamente sobrecarregada, tentando novamente...'
                     }));
-                    
+
                     return; // Não quebrar o stream
                   }
-                  
+
                   throw new Error(data.data || 'Unknown server error');
                 }
               }
@@ -360,7 +360,7 @@ const CentralEmails = () => {
     } catch (error) {
       console.error('Error generating emails:', error);
       setIsGenerating(false);
-      
+
       // Mensagem específica para erro de API key do Claude
       if (error.message.includes('API key do Claude inválida')) {
         alert(`❌ Erro de Configuração:\n\n${error.message}\n\nSoluções:\n1. Configure uma API key válida do Claude no arquivo .env\n2. Ou altere AI_PROVIDER_EMAILS para "openai" no arquivo .env\n\nConsulte CLAUDE_API_KEY_GUIDE.md para mais detalhes.`);
@@ -369,7 +369,7 @@ const CentralEmails = () => {
       } else {
         alert(`Erro ao gerar emails: ${error.message}\n\nTente novamente ou verifique a configuração.`);
       }
-      
+
       setCurrentStep('questionnaire');
     }
   };
@@ -380,9 +380,9 @@ const CentralEmails = () => {
       const nextPhaseIndex = currentPhaseIndex + 1;
       setCurrentPhaseIndex(nextPhaseIndex);
       setCanContinue(false);
-      
+
       console.log('🔄 Continuing to phase:', nextPhaseIndex + 1, phases[nextPhaseIndex].name);
-      
+
       // Generate the next phase with the correct index
       handleGenerateEmails(phases[nextPhaseIndex].key, nextPhaseIndex);
     }
@@ -445,14 +445,14 @@ const CentralEmails = () => {
               <ChevronLeftIcon className="w-5 h-5 mr-2" />
               Voltar ao Dashboard
             </Link>
-            
+
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent mb-4">
               📧 Central de Emails
             </h1>
             <p className="text-xl text-gray-600 dark:text-gray-400 mb-6">
               Escolha o nível de profundidade para seu questionário
             </p>
-            
+
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-8">
               <p className="text-blue-800 dark:text-blue-200 text-sm">
                 <strong>💡 Dica:</strong> Recomendamos começar com o <strong>Questionário Completo</strong> para obter a melhor relação entre tempo e qualidade dos emails.
@@ -470,27 +470,25 @@ const CentralEmails = () => {
                 >
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-3">
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-lg ${
-                        levelKey === 'rapido' ? 'bg-gradient-to-br from-yellow-500 to-yellow-600' :
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-lg ${levelKey === 'rapido' ? 'bg-gradient-to-br from-yellow-500 to-yellow-600' :
                         levelKey === 'completo' ? 'bg-gradient-to-br from-primary to-primary-dark' :
-                        'bg-gradient-to-br from-purple-500 to-purple-600'
-                      }`}>
+                          'bg-gradient-to-br from-purple-500 to-purple-600'
+                        }`}>
                         <span className="text-white text-xl">
                           {levelKey === 'rapido' ? '⚡' : levelKey === 'completo' ? '📋' : '🔬'}
                         </span>
                       </div>
                     </div>
-                    <div className={`w-6 h-6 rounded-full border-3 transition-all duration-300 ${
-                      selectedLevel === levelKey 
-                        ? 'bg-primary border-primary shadow-lg shadow-primary/30' 
-                        : 'border-gray-300 dark:border-gray-600'
-                    }`}>
+                    <div className={`w-6 h-6 rounded-full border-3 transition-all duration-300 ${selectedLevel === levelKey
+                      ? 'bg-primary border-primary shadow-lg shadow-primary/30'
+                      : 'border-gray-300 dark:border-gray-600'
+                      }`}>
                       {selectedLevel === levelKey && (
                         <div className="w-full h-full rounded-full bg-white scale-50 transition-transform duration-300"></div>
                       )}
                     </div>
                   </div>
-                  
+
                   <div className="mb-4">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                       {level.name}
@@ -498,7 +496,7 @@ const CentralEmails = () => {
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                       {level.description}
                     </p>
-                    
+
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-lg font-bold text-primary">
                         {level.questionCount} perguntas
@@ -507,28 +505,25 @@ const CentralEmails = () => {
                         {level.duration}
                       </span>
                     </div>
-                    
-                    <div className={`text-sm font-medium mb-3 ${
-                      levelKey === 'rapido' ? 'text-yellow-600' :
+
+                    <div className={`text-sm font-medium mb-3 ${levelKey === 'rapido' ? 'text-yellow-600' :
                       levelKey === 'completo' ? 'text-green-600' :
-                      'text-purple-600'
-                    }`}>
+                        'text-purple-600'
+                      }`}>
                       {level.quality}
                     </div>
                   </div>
-                  
+
                   <div className="space-y-2">
                     {level.features.map((feature, index) => (
-                      <div key={index} className={`flex items-center text-sm ${
-                        levelKey === 'rapido' ? 'text-yellow-600 dark:text-yellow-400' :
+                      <div key={index} className={`flex items-center text-sm ${levelKey === 'rapido' ? 'text-yellow-600 dark:text-yellow-400' :
                         levelKey === 'completo' ? 'text-green-600 dark:text-green-400' :
-                        'text-purple-600 dark:text-purple-400'
-                      }`}>
-                        <span className={`w-2 h-2 rounded-full mr-3 ${
-                          levelKey === 'rapido' ? 'bg-yellow-500' :
+                          'text-purple-600 dark:text-purple-400'
+                        }`}>
+                        <span className={`w-2 h-2 rounded-full mr-3 ${levelKey === 'rapido' ? 'bg-yellow-500' :
                           levelKey === 'completo' ? 'bg-green-500' :
-                          'bg-purple-500'
-                        }`}></span>
+                            'bg-purple-500'
+                          }`}></span>
                         {feature}
                       </div>
                     ))}
@@ -536,7 +531,7 @@ const CentralEmails = () => {
                 </div>
               ))}
             </div>
-            
+
             <div className="flex justify-center mt-10">
               <button
                 onClick={handleStartQuestionnaire}
@@ -567,7 +562,7 @@ const CentralEmails = () => {
               <ChevronLeftIcon className="w-5 h-5 mr-2" />
               Voltar ao Dashboard
             </Link>
-            
+
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent mb-4">
               🚀 Opções de Geração
             </h1>
@@ -578,7 +573,7 @@ const CentralEmails = () => {
 
           <div className="max-w-5xl mx-auto">
             <div className="bg-white/80 dark:bg-secondary/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/20 dark:border-gray-700/20 p-8">
-              
+
               {/* Tipo de Geração */}
               <div className="mb-10">
                 <div className="text-center mb-8">
@@ -589,10 +584,10 @@ const CentralEmails = () => {
                     Selecione a estratégia ideal para criar sua sequência de emails. Ambas as opções produzem resultados profissionais.
                   </p>
                 </div>
-                
+
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {/* Geração Completa */}
-                  <div 
+                  <div
                     className={`phase-card ${generationType === 'full' ? 'selected' : ''}`}
                     onClick={() => setGenerationType('full')}
                   >
@@ -610,21 +605,20 @@ const CentralEmails = () => {
                           </p>
                         </div>
                       </div>
-                      <div className={`w-6 h-6 rounded-full border-3 transition-all duration-300 ${
-                        generationType === 'full' 
-                          ? 'bg-primary border-primary shadow-lg shadow-primary/30' 
-                          : 'border-gray-300 dark:border-gray-600'
-                      }`}>
+                      <div className={`w-6 h-6 rounded-full border-3 transition-all duration-300 ${generationType === 'full'
+                        ? 'bg-primary border-primary shadow-lg shadow-primary/30'
+                        : 'border-gray-300 dark:border-gray-600'
+                        }`}>
                         {generationType === 'full' && (
                           <div className="w-full h-full rounded-full bg-white scale-50 transition-transform duration-300"></div>
                         )}
                       </div>
                     </div>
-                    
+
                     <p className="text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
                       Gera todos os 29 emails em 5 fases sequenciais com máxima coerência narrativa
                     </p>
-                    
+
                     <div className="space-y-2">
                       <div className="flex items-center text-sm text-green-600 dark:text-green-400">
                         <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
@@ -646,7 +640,7 @@ const CentralEmails = () => {
                   </div>
 
                   {/* Geração por Fase */}
-                  <div 
+                  <div
                     className={`phase-card ${generationType === 'phase' ? 'selected' : ''}`}
                     onClick={() => setGenerationType('phase')}
                   >
@@ -664,21 +658,20 @@ const CentralEmails = () => {
                           </p>
                         </div>
                       </div>
-                      <div className={`w-6 h-6 rounded-full border-3 transition-all duration-300 ${
-                        generationType === 'phase' 
-                          ? 'bg-primary border-primary shadow-lg shadow-primary/30' 
-                          : 'border-gray-300 dark:border-gray-600'
-                      }`}>
+                      <div className={`w-6 h-6 rounded-full border-3 transition-all duration-300 ${generationType === 'phase'
+                        ? 'bg-primary border-primary shadow-lg shadow-primary/30'
+                        : 'border-gray-300 dark:border-gray-600'
+                        }`}>
                         {generationType === 'phase' && (
                           <div className="w-full h-full rounded-full bg-white scale-50 transition-transform duration-300"></div>
                         )}
                       </div>
                     </div>
-                    
+
                     <p className="text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
                       Gera apenas uma fase específica do funil de vendas para testes focados
                     </p>
-                    
+
                     <div className="space-y-2">
                       <div className="flex items-center text-sm text-blue-600 dark:text-blue-400">
                         <span className="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>
@@ -712,25 +705,23 @@ const CentralEmails = () => {
                       Escolha qual fase do funil você deseja gerar primeiro
                     </p>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {phases.map((phase) => (
-                      <div 
+                      <div
                         key={phase.key}
-                        className={`relative p-5 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 ${
-                          selectedPhase === phase.key 
-                            ? 'border-primary bg-gradient-to-br from-primary/5 to-primary/10 shadow-lg shadow-primary/20' 
-                            : 'border-gray-200 dark:border-gray-600 hover:border-primary/40 bg-white dark:bg-secondary/30'
-                        }`}
+                        className={`relative p-5 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 ${selectedPhase === phase.key
+                          ? 'border-primary bg-gradient-to-br from-primary/5 to-primary/10 shadow-lg shadow-primary/20'
+                          : 'border-gray-200 dark:border-gray-600 hover:border-primary/40 bg-white dark:bg-secondary/30'
+                          }`}
                         onClick={() => setSelectedPhase(phase.key)}
                       >
                         <div className="flex items-start justify-between mb-3">
                           <h4 className="font-bold text-gray-900 dark:text-white text-lg">
                             {phase.name}
                           </h4>
-                          <div className={`w-5 h-5 rounded-full border-2 transition-all ${
-                            selectedPhase === phase.key ? 'bg-primary border-primary' : 'border-gray-300'
-                          }`} />
+                          <div className={`w-5 h-5 rounded-full border-2 transition-all ${selectedPhase === phase.key ? 'bg-primary border-primary' : 'border-gray-300'
+                            }`} />
                         </div>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 leading-relaxed">
                           {phase.description}
@@ -761,7 +752,7 @@ const CentralEmails = () => {
                   <span>←</span>
                   <span>Voltar à Seleção de Nível</span>
                 </button>
-                
+
                 <button
                   onClick={handleStartGeneration}
                   className="btn-continue group"
@@ -770,8 +761,8 @@ const CentralEmails = () => {
                     {generationType === 'phase' ? '🎯' : '🚀'}
                   </span>
                   <span className="btn-continue-text">
-                    {generationType === 'phase' 
-                      ? `Gerar ${phases.find(p => p.key === selectedPhase)?.name}` 
+                    {generationType === 'phase'
+                      ? `Gerar ${phases.find(p => p.key === selectedPhase)?.name}`
                       : 'Iniciar Sequência Completa'
                     }
                   </span>
@@ -788,7 +779,7 @@ const CentralEmails = () => {
   if (currentStep === 'questionnaire') {
     const currentQuestions = getCurrentQuestions();
     const currentQuestion = currentQuestions[currentQuestionIndex];
-    
+
     // Safety check
     if (!currentQuestion) {
       return (
@@ -804,7 +795,7 @@ const CentralEmails = () => {
         </div>
       );
     }
-    
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-secondary dark:via-secondary-light dark:to-secondary py-8">
         <div className="container mx-auto px-4">
@@ -816,14 +807,14 @@ const CentralEmails = () => {
               <ChevronLeftIcon className="w-5 h-5 mr-2" />
               Voltar ao Dashboard
             </Link>
-            
+
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent mb-4">
               📧 Central de Emails
             </h1>
             <p className="text-xl text-gray-600 dark:text-gray-400">
               Complete o questionário para gerar seus emails
             </p>
-            
+
             {/* Level and progress info */}
             <div className="mt-2 flex items-center gap-4 text-sm text-gray-500">
               <span className="bg-primary/10 text-primary px-2 py-1 rounded">
@@ -868,7 +859,7 @@ const CentralEmails = () => {
               Voltar ao Dashboard
             </Link>
           </div>
-          
+
           {/* Debug log before EmailsResult */}
           {console.log('🔍 Passing to EmailsResult:', {
             canContinue,
@@ -880,7 +871,7 @@ const CentralEmails = () => {
               isComplete: emailsResult.isComplete
             } : null
           })}
-          
+
           <EmailsResult
             result={emailsResult}
             onStartOver={handleStartOver}

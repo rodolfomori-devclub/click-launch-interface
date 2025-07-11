@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { DocumentTextIcon, ArrowLeftIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
-import { editorialQuestions } from '../data/editorialQuestions';
+import { CheckCircleIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { useEffect, useState } from 'react';
+import EditorialResult from '../components/editorial/EditorialResult';
 import QuestionCard from '../components/editorial/QuestionCard';
 import ReviewAnswers from '../components/editorial/ReviewAnswers';
-import EditorialResult from '../components/editorial/EditorialResult';
+import { editorialQuestions } from '../data/editorialQuestions';
 import useLocalStorage from '../hooks/useLocalStorage';
 
 const LinhaEditorial = () => {
@@ -61,7 +61,7 @@ const LinhaEditorial = () => {
     setIsSubmitting(true);
     setCurrentStep('result');
     setCanContinue(false);
-    
+
     try {
       // Clean the data to avoid circular references
       const cleanAnswers = {};
@@ -82,7 +82,7 @@ const LinhaEditorial = () => {
 
       const cleanExistingContent = typeof existingContent === 'string' ? existingContent : null;
 
-      const response = await fetch('http://localhost:3001/api/editorial/generate-stream', {
+      const response = await fetch(import.meta.env.VITE_API_URL + '/api/editorial/generate-stream', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -116,7 +116,7 @@ const LinhaEditorial = () => {
           if (line.startsWith('data: ')) {
             try {
               const data = JSON.parse(line.slice(6));
-              
+
               if (data.type === 'metadata') {
                 metadata = data.data;
               } else if (data.type === 'content') {
@@ -137,23 +137,23 @@ const LinhaEditorial = () => {
                   status: 'generated'
                 };
                 setEditorialResult(finalResult);
-                
+
                 // Check if content seems incomplete (contains continuation indicators)
-                const hasIncompleteMarkers = editorialContent.includes('[Continuo') || 
-                                           editorialContent.includes('[continua') ||
-                                           editorialContent.includes('se você quiser') ||
-                                           editorialContent.includes('quer que eu continue') ||
-                                           editorialContent.includes('Gostaria que eu continuasse') ||
-                                           editorialContent.includes('resto do cronograma') ||
-                                           editorialContent.includes('Solicite a continuação') ||
-                                           editorialContent.includes('receber o resto do plano');
-                
+                const hasIncompleteMarkers = editorialContent.includes('[Continuo') ||
+                  editorialContent.includes('[continua') ||
+                  editorialContent.includes('se você quiser') ||
+                  editorialContent.includes('quer que eu continue') ||
+                  editorialContent.includes('Gostaria que eu continuasse') ||
+                  editorialContent.includes('resto do cronograma') ||
+                  editorialContent.includes('Solicite a continuação') ||
+                  editorialContent.includes('receber o resto do plano');
+
                 // Also check if content ends with complete sections
                 const seemsComplete = editorialContent.includes('## 8. RECOMENDAÇÕES ESPECIAIS') ||
-                                    editorialContent.includes('Próximos passos após o lançamento') ||
-                                    editorialContent.includes('FIM DA LINHA EDITORIAL COMPLETA') ||
-                                    (editorialContent.endsWith('.') && editorialContent.length > 5000 && !hasIncompleteMarkers);
-                
+                  editorialContent.includes('Próximos passos após o lançamento') ||
+                  editorialContent.includes('FIM DA LINHA EDITORIAL COMPLETA') ||
+                  (editorialContent.endsWith('.') && editorialContent.length > 5000 && !hasIncompleteMarkers);
+
                 setCanContinue(hasIncompleteMarkers && !seemsComplete);
               } else if (data.type === 'error') {
                 throw new Error(data.error);
@@ -242,7 +242,7 @@ const LinhaEditorial = () => {
             📋 Como funciona:
           </h3>
           <p className="text-sm text-blue-800 dark:text-blue-300">
-            Responda 20 perguntas estratégicas sobre seu lançamento. Suas respostas serão salvas automaticamente, 
+            Responda 20 perguntas estratégicas sobre seu lançamento. Suas respostas serão salvas automaticamente,
             então você pode pausar e retomar quando quiser.
           </p>
         </div>

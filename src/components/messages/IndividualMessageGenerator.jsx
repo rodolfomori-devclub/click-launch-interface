@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  ArrowRightIcon, 
-  ClipboardIcon, 
-  ArrowDownTrayIcon, 
-  SparklesIcon, 
-  ChatBubbleLeftRightIcon 
+import {
+  ArrowDownTrayIcon,
+  ArrowRightIcon,
+  ChatBubbleLeftRightIcon,
+  ClipboardIcon,
+  SparklesIcon
 } from '@heroicons/react/24/outline';
+import React, { useEffect, useState } from 'react';
 
 const IndividualMessageGenerator = () => {
   const [availableMessages, setAvailableMessages] = useState([]);
@@ -23,9 +23,9 @@ const IndividualMessageGenerator = () => {
 
   const fetchAvailableMessages = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/messages/available-messages`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/messages/available-messages`);
       const result = await response.json();
-      
+
       if (result.success) {
         setAvailableMessages(result.data.messages);
       }
@@ -43,9 +43,9 @@ const IndividualMessageGenerator = () => {
 
   const fetchTemplate = async (messageNumber) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/messages/template/${messageNumber}`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/messages/template/${messageNumber}`);
       const result = await response.json();
-      
+
       if (result.success) {
         setTemplate(result.data);
       }
@@ -70,7 +70,7 @@ const IndividualMessageGenerator = () => {
     setGeneratedContent('');
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/messages/generate-individual-stream`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/messages/generate-individual-stream`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -88,7 +88,7 @@ const IndividualMessageGenerator = () => {
 
       while (true) {
         const { done, value } = await reader.read();
-        
+
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
@@ -99,7 +99,7 @@ const IndividualMessageGenerator = () => {
           if (line.startsWith('data: ')) {
             try {
               const data = JSON.parse(line.slice(6));
-              
+
               if (data.type === 'content') {
                 setGeneratedContent(prev => prev + data.data);
               } else if (data.type === 'complete') {
@@ -163,24 +163,23 @@ const IndividualMessageGenerator = () => {
             <h2 className="text-xl font-semibold mb-4 text-gray-800">
               Selecionar Mensagem
             </h2>
-            
+
             <div className="space-y-4 max-h-96 overflow-y-auto">
               {Object.entries(groupedMessages).map(([fase, messages]) => (
                 <div key={fase} className="border-b pb-3">
                   <h3 className="font-medium text-gray-700 mb-2 capitalize">
                     {fase.replace(/-/g, ' ')}
                   </h3>
-                  
+
                   <div className="space-y-2">
                     {messages.map((message) => (
                       <div
                         key={message.id}
                         onClick={() => handleMessageSelect(message.id)}
-                        className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                          selectedMessage === message.id
-                            ? 'border-blue-500 bg-blue-50'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
+                        className={`p-3 rounded-lg border cursor-pointer transition-all ${selectedMessage === message.id
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'border-gray-200 hover:border-gray-300'
+                          }`}
                       >
                         <div className="font-medium text-sm text-gray-800">
                           #{message.id} - {message.nome}
@@ -201,24 +200,24 @@ const IndividualMessageGenerator = () => {
             <h2 className="text-xl font-semibold mb-4 text-gray-800">
               Detalhes do Template
             </h2>
-            
+
             {template ? (
               <div className="space-y-4">
                 <div>
                   <h3 className="font-medium text-gray-700">Nome</h3>
                   <p className="text-gray-600">{template.nome}</p>
                 </div>
-                
+
                 <div>
                   <h3 className="font-medium text-gray-700">Objetivo</h3>
                   <p className="text-gray-600 text-sm">{template.objetivo}</p>
                 </div>
-                
+
                 <div>
                   <h3 className="font-medium text-gray-700">Momento</h3>
                   <p className="text-gray-600 text-sm">{template.momento}</p>
                 </div>
-                
+
                 <div>
                   <h3 className="font-medium text-gray-700">Elementos-chave</h3>
                   <div className="flex flex-wrap gap-1 mt-1">
@@ -246,11 +245,10 @@ const IndividualMessageGenerator = () => {
                 <button
                   onClick={generateMessage}
                   disabled={isGenerating || !selectedMessage}
-                  className={`w-full py-3 px-4 rounded-lg font-medium flex items-center justify-center space-x-2 ${
-                    isGenerating || !selectedMessage
-                      ? 'bg-gray-300 cursor-not-allowed'
-                      : 'bg-blue-600 hover:bg-blue-700 text-white'
-                  }`}
+                  className={`w-full py-3 px-4 rounded-lg font-medium flex items-center justify-center space-x-2 ${isGenerating || !selectedMessage
+                    ? 'bg-gray-300 cursor-not-allowed'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                    }`}
                 >
                   {isGenerating ? (
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
@@ -276,7 +274,7 @@ const IndividualMessageGenerator = () => {
               <h2 className="text-xl font-semibold text-gray-800">
                 Mensagem Gerada
               </h2>
-              
+
               {generatedContent && (
                 <div className="flex space-x-2">
                   <button
@@ -296,7 +294,7 @@ const IndividualMessageGenerator = () => {
                 </div>
               )}
             </div>
-            
+
             <div className="border border-gray-200 rounded-lg p-4 min-h-64 bg-gray-50">
               {generatedContent ? (
                 <div className="whitespace-pre-wrap text-gray-800">

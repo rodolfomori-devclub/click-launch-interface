@@ -1,25 +1,20 @@
 // 🎯 Sistema de Geração em Lotes com Autorização
 // Gera mensagens lote por lote, sempre pedindo autorização para continuar
 
-import React, { useState } from 'react';
-import { 
-  PlayIcon, 
-  PauseIcon,
-  CheckCircleIcon,
-  ClockIcon,
-  SparklesIcon,
-  ExclamationTriangleIcon,
+import {
   ArrowRightIcon,
+  CheckCircleIcon,
+  PlayIcon,
   StopIcon
 } from '@heroicons/react/24/outline';
+import React, { useState } from 'react';
 
 import { MESSAGE_PHASES } from '../../data/messagesPhases';
-import { generateBatchPrompts } from '../../data/messagePrompts';
 
-const BatchGeneration = ({ 
-  selectedPhases, 
-  userAnswers, 
-  onBack, 
+const BatchGeneration = ({
+  selectedPhases,
+  userAnswers,
+  onBack,
   onComplete,
   selectedLevel = 'complete' // ← ADICIONADO
 }) => {
@@ -44,17 +39,17 @@ const BatchGeneration = ({
 
     console.log('🚀 Starting batch generation for phase:', currentPhase.name);
     setIsGenerating(true);
-    
+
     try {
       // Simular geração de mensagens para a fase atual
       const batchMessages = await generateMessagesForPhase(currentPhase, userAnswers);
-      
+
       console.log('📦 Generated batch messages:', batchMessages);
-      
+
       const updatedMessages = [...generatedMessages, ...batchMessages];
       setGeneratedMessages(updatedMessages);
       setCompletedBatches(prev => [...prev, currentPhase.id]);
-      
+
       // Verificar se há mais fases
       if (currentBatchIndex < orderedPhases.length - 1) {
         console.log('➡️ More phases to generate, showing continue prompt');
@@ -64,7 +59,7 @@ const BatchGeneration = ({
         // Completou todas as fases
         onComplete(updatedMessages);
       }
-      
+
     } catch (error) {
       console.error('❌ Erro ao gerar mensagens:', error);
     } finally {
@@ -84,15 +79,15 @@ const BatchGeneration = ({
   // Função REAL para geração de mensagens via API do Claude
   const generateMessagesForPhase = async (phase, userAnswers) => {
     console.log('🎯 BatchGeneration: generateMessagesForPhase called with:', { phase: phase.name, userAnswers });
-    
+
     try {
       // Importar questions do messagesQuestions
       const { getQuestionsByLevel } = await import('../../data/messagesQuestions');
       const questions = getQuestionsByLevel(selectedLevel); // Usar nível selecionado pelo usuário
-      
+
       // Usar diretamente o ID da fase para o backend
       console.log('📋 Using phase ID:', phase.id);
-      
+
       // Preparar payload para API
       const requestBody = {
         answers: userAnswers,
@@ -101,11 +96,11 @@ const BatchGeneration = ({
         level: selectedLevel,
         isSequential: false
       };
-      
+
       console.log('📡 Sending request to API:', requestBody);
-      
+
       // Chamar API real do Claude
-      const response = await fetch('http://localhost:3001/api/messages/generate-stream', {
+      const response = await fetch(import.meta.env.VITE_API_URL + '/api/messages/generate-stream', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -138,7 +133,7 @@ const BatchGeneration = ({
           if (line.startsWith('data: ')) {
             try {
               const data = JSON.parse(line.slice(6));
-              
+
               if (data.type === 'metadata') {
                 metadata = data.data;
                 console.log('📊 Metadata received:', metadata);
@@ -150,7 +145,7 @@ const BatchGeneration = ({
                   isObject: typeof data.data === 'object' && data.data !== null,
                   data: data.data
                 });
-                
+
                 // Handle different data types
                 if (typeof data.data === 'string') {
                   generatedContent += data.data;
@@ -193,7 +188,7 @@ const BatchGeneration = ({
         length: generatedContent?.length,
         content: generatedContent
       });
-      
+
       try {
         const messages = parseGeneratedContent(generatedContent, phase);
         console.log('✅ BatchGeneration: Generated messages from API:', messages);
@@ -205,7 +200,7 @@ const BatchGeneration = ({
           content: generatedContent,
           stack: parseError.stack
         });
-        
+
         // Return a fallback message if parsing fails
         return [{
           id: `${phase.id}_fallback`,
@@ -215,7 +210,7 @@ const BatchGeneration = ({
           phase: phase.name
         }];
       }
-      
+
     } catch (error) {
       console.error('❌ Error calling API:', error);
       throw error;
@@ -231,7 +226,7 @@ const BatchGeneration = ({
       isObject: typeof content === 'object' && content !== null,
       phase: phase.name
     });
-    
+
     // Handle different data types
     if (Array.isArray(content)) {
       // If content is already an array of message objects from generateMessagesInBatches
@@ -247,7 +242,7 @@ const BatchGeneration = ({
         };
       });
     }
-    
+
     if (typeof content === 'object' && content !== null) {
       // If content is a single object
       console.log('📄 Processing single message object');
@@ -259,18 +254,18 @@ const BatchGeneration = ({
         phase: phase.name
       }];
     }
-    
+
     // Handle string content (original logic)
     if (typeof content !== 'string') {
       console.warn('⚠️ Content is not a string, converting:', typeof content);
       content = String(content);
     }
-    
+
     if (!content || content.trim() === '') {
       console.warn('⚠️ No content generated by Claude');
       return [];
     }
-    
+
     // Dividir por separadores comuns que o Claude usa
     const messageSeparators = [
       '**MENSAGEM',
@@ -282,9 +277,9 @@ const BatchGeneration = ({
       '\n\n---\n\n',
       '\n\n==\n\n'
     ];
-    
+
     let messages = [content];
-    
+
     // Tentar dividir por cada separador
     for (const separator of messageSeparators) {
       if (content.includes(separator)) {
@@ -293,18 +288,18 @@ const BatchGeneration = ({
         break;
       }
     }
-    
+
     // Se não conseguiu dividir, usar o conteúdo como uma única mensagem
     if (messages.length === 1) {
       console.log('📝 Using content as single message');
       messages = [content];
     }
-    
+
     // Processar cada mensagem
     return messages.map((msgContent, index) => {
       const cleanContent = msgContent.trim();
       const phaseMessage = phase.messages[index];
-      
+
       return {
         id: `${phase.id}_${index + 1}`,
         title: phaseMessage ? phaseMessage.title : `Mensagem ${index + 1}`,
@@ -330,7 +325,7 @@ const BatchGeneration = ({
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4">
       <div className="max-w-4xl mx-auto">
-        
+
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
@@ -352,7 +347,7 @@ const BatchGeneration = ({
             </span>
           </div>
           <div className="progress-container">
-            <div 
+            <div
               className="progress-bar"
               style={{ width: `${getProgressPercentage()}%` }}
             />

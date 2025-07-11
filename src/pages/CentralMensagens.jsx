@@ -1,14 +1,12 @@
-import { useState, useEffect } from 'react';
-import { ChatBubbleLeftRightIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
-import { 
-  messagesQuestions, 
-  getAllLevels, 
-  getQuestionsByLevel, 
-  getLevelConfig 
-} from '../data/messagesQuestions';
+import { ArrowLeftIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
+import { useEffect, useState } from 'react';
 import QuestionCard from '../components/editorial/QuestionCard';
-import ReviewAnswers from '../components/editorial/ReviewAnswers';
 import MessagesResult from '../components/messages/MessagesResult';
+import {
+  getAllLevels,
+  getLevelConfig,
+  getQuestionsByLevel
+} from '../data/messagesQuestions';
 import useLocalStorage from '../hooks/useLocalStorage';
 
 const CentralMensagens = () => {
@@ -24,15 +22,15 @@ const CentralMensagens = () => {
   const [currentLoteIndex, setCurrentLoteIndex] = useState(0);
   const [isSequenceComplete, setIsSequenceComplete] = useState(false);
   const [allGeneratedContent, setAllGeneratedContent] = useState('');
-  
+
   // Configurações de geração
   const [generationType, setGenerationType] = useState('full'); // 'full', 'lote'
   const [selectedLote, setSelectedLote] = useState('lote1');
-  
+
   // Controle de geração sequencial
   const [completedLotes, setCompletedLotes] = useState([]);
   const [isSequentialGeneration, setIsSequentialGeneration] = useState(false);
-  
+
   // Definir os 7 lotes disponíveis
   const lotes = [
     { key: 'lote1', name: 'Lote 1: Antecipação e Preparação', description: 'Mensagens de boas-vindas até véspera do evento (7 mensagens)', messages: [1, 2, 3, 4, 5, 6, 7] },
@@ -114,7 +112,7 @@ const CentralMensagens = () => {
       isSequentialGeneration,
       completedLotes
     });
-    
+
     setIsSubmitting(true);
     setCanContinue(false);
     setCurrentStep('results');
@@ -122,7 +120,7 @@ const CentralMensagens = () => {
     try {
       // Determinar qual lote gerar
       let loteToGenerate = null;
-      
+
       if (specificLote) {
         // Lote específico (para geração individual)
         loteToGenerate = specificLote;
@@ -135,29 +133,29 @@ const CentralMensagens = () => {
         // Garantir que está em modo sequencial
         setIsSequentialGeneration(true);
       }
-      
+
       console.log('📱 Lote determined:', {
         loteToGenerate,
         isSequentialGeneration,
         currentLoteIndex,
         loteName: lotes[currentLoteIndex]?.name
       });
-      
+
       // Preparar payload
       let requestBody = {
         answers: answers,
         questions: questions,
         level: selectedLevel
       };
-      
+
       // Sempre enviar o parâmetro phase (que corresponde ao lote) para Claude
       if (loteToGenerate) {
         requestBody.phase = loteToGenerate;
         requestBody.isSequential = isSequentialGeneration;
         console.log('🔄 Generating lote:', loteToGenerate, 'Sequential:', isSequentialGeneration);
       }
-      
-      const response = await fetch('http://localhost:3001/api/messages/generate-stream', {
+
+      const response = await fetch(import.meta.env.VITE_API_URL + '/api/messages/generate-stream', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -183,13 +181,13 @@ const CentralMensagens = () => {
           if (line.startsWith('data: ')) {
             try {
               const data = JSON.parse(line.slice(6));
-              
+
               if (data.type === 'metadata') {
                 metadata = data.data;
                 console.log('📊 Metadata received:', metadata);
               } else if (data.type === 'content') {
                 newLoteContent += data.data;
-                
+
                 // Update result in real-time
                 const realTimeResult = {
                   ...metadata,
@@ -202,26 +200,26 @@ const CentralMensagens = () => {
                   completedLotes: completedLotes,
                   isSequentialGeneration: isSequentialGeneration
                 };
-                
+
                 setMessagesResult(realTimeResult);
-                
+
               } else if (data.type === 'complete') {
                 // Atualizar conteúdo total gerado
                 const updatedAllContent = allGeneratedContent + newLoteContent;
                 setAllGeneratedContent(updatedAllContent);
-                
+
                 // Marcar lote atual como completo
                 const currentLote = loteToGenerate || lotes[currentLoteIndex].key;
                 const newCompletedLotes = [...completedLotes, currentLote];
                 setCompletedLotes(newCompletedLotes);
-                
+
                 // Verificar se é geração sequencial e se há mais lotes
                 const effectiveLoteIndex = loteIndex !== null ? loteIndex : currentLoteIndex;
-                const isSequentialComplete = isSequentialGeneration && 
-                                           (effectiveLoteIndex >= lotes.length - 1);
-                
+                const isSequentialComplete = isSequentialGeneration &&
+                  (effectiveLoteIndex >= lotes.length - 1);
+
                 const isLoteComplete = metadata?.generationType === 'lote' || metadata?.generationType === 'single-phase';
-                
+
                 console.log('🔍 Completion check:', {
                   isSequentialGeneration,
                   currentLoteIndex,
@@ -233,7 +231,7 @@ const CentralMensagens = () => {
                   metadataGenerationType: metadata?.generationType,
                   frontendGenerationType: generationType
                 });
-                
+
                 // Criar resultado final
                 const finalResult = {
                   ...metadata,
@@ -249,12 +247,12 @@ const CentralMensagens = () => {
                   currentLoteIndex: effectiveLoteIndex,
                   isComplete: isSequentialComplete || isLoteComplete
                 };
-                
+
                 setMessagesResult(finalResult);
-                
+
                 // Verificar se deve continuar
                 const shouldContinue = isSequentialGeneration && !isSequentialComplete;
-                
+
                 console.log('🎯 Should continue logic:', {
                   isSequentialGeneration,
                   isSequentialComplete,
@@ -266,7 +264,7 @@ const CentralMensagens = () => {
                   frontendGenerationType: generationType,
                   finalIsSequential: isSequentialGeneration || metadata?.isSequential || (generationType === 'full')
                 });
-                
+
                 if (shouldContinue) {
                   console.log('🟢 Setting canContinue to TRUE');
                   setCanContinue(true);
@@ -279,10 +277,10 @@ const CentralMensagens = () => {
                   setCanContinue(false);
                   setIsSequenceComplete(true);
                 }
-                
+
                 setIsSubmitting(false);
                 console.log('✅ Generation completed:', finalResult);
-                
+
               } else if (data.type === 'error') {
                 throw new Error(data.error);
               }
@@ -295,7 +293,7 @@ const CentralMensagens = () => {
     } catch (error) {
       console.error('Error generating messages:', error);
       setIsSubmitting(false);
-      
+
       if (error.message.includes('API key do Claude inválida')) {
         alert(`❌ Erro de Configuração:\n\n${error.message}\n\nSoluções:\n1. Configure uma API key válida do Claude no arquivo .env\n2. Ou altere AI_PROVIDER_MESSAGES para "openai" no arquivo .env\n\nConsulte CLAUDE_API_KEY_GUIDE.md para mais detalhes.`);
       } else if (error.message.includes('Overloaded')) {
@@ -303,7 +301,7 @@ const CentralMensagens = () => {
       } else {
         alert(`Erro ao gerar mensagens: ${error.message}\n\nTente novamente ou verifique a configuração.`);
       }
-      
+
       setCurrentStep('options');
     }
   };
@@ -314,9 +312,9 @@ const CentralMensagens = () => {
       const nextLoteIndex = currentLoteIndex + 1;
       setCurrentLoteIndex(nextLoteIndex);
       setCanContinue(false);
-      
+
       console.log('🔄 Continuing to lote:', nextLoteIndex + 1, lotes[nextLoteIndex].name);
-      
+
       // Generate the next lote with the correct index
       handleGenerateMessages(lotes[nextLoteIndex].key, nextLoteIndex);
     }
@@ -366,7 +364,7 @@ const CentralMensagens = () => {
           📱 Central de <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Mensagens</span>
         </h1>
         <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-          Crie seu calendário completo de mensagens de WhatsApp para lançamento, 
+          Crie seu calendário completo de mensagens de WhatsApp para lançamento,
           baseado no framework de alta conversão com mais de <strong>70 mensagens</strong> divididas em <strong>7 lotes estratégicos</strong>.
         </p>
       </div>
@@ -417,7 +415,7 @@ const CentralMensagens = () => {
 
   const renderLevelSelection = () => {
     const levels = getAllLevels();
-    
+
     return (
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-8">
@@ -428,23 +426,22 @@ const CentralMensagens = () => {
             <ArrowLeftIcon className="w-5 h-5" />
             <span>Voltar</span>
           </button>
-          
+
           <h1 className="text-3xl font-bold text-secondary dark:text-white mb-4">
             📊 Escolha o Nível do Questionário
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Selecione o nível de detalhamento para suas mensagens. 
+            Selecione o nível de detalhamento para suas mensagens.
             Mais perguntas = maior personalização e qualidade.
           </p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
           {levels.map((level) => (
-            <div 
+            <div
               key={level.id}
-              className={`phase-card cursor-pointer transition-all duration-300 ${
-                selectedLevel === level.id ? 'ring-2 ring-primary ring-offset-2 dark:ring-offset-gray-800' : ''
-              }`}
+              className={`phase-card cursor-pointer transition-all duration-300 ${selectedLevel === level.id ? 'ring-2 ring-primary ring-offset-2 dark:ring-offset-gray-800' : ''
+                }`}
               onClick={() => handleLevelSelect(level.id)}
             >
               <div className="text-center">
@@ -455,7 +452,7 @@ const CentralMensagens = () => {
                 `}>
                   {level.icon}
                 </div>
-                
+
                 <h3 className={`text-xl font-bold mb-2
                   ${level.color === 'yellow' ? 'text-yellow-600 dark:text-yellow-400' : ''}
                   ${level.color === 'green' ? 'text-green-600 dark:text-green-400' : ''}
@@ -463,15 +460,15 @@ const CentralMensagens = () => {
                 `}>
                   {level.name}
                 </h3>
-                
+
                 <p className="font-medium text-gray-800 dark:text-gray-200 mb-2">
                   {level.subtitle}
                 </p>
-                
+
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                   {level.description}
                 </p>
-                
+
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600 dark:text-gray-400">Perguntas:</span>
@@ -482,7 +479,7 @@ const CentralMensagens = () => {
                     <span className="font-medium">{level.estimatedTime}</span>
                   </div>
                 </div>
-                
+
                 <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                   <p className="text-xs text-gray-600 dark:text-gray-400">
                     <strong>Resultado:</strong> {level.quality}
@@ -499,7 +496,7 @@ const CentralMensagens = () => {
               💡 Recomendação
             </h4>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Para lançamentos profissionais, recomendamos o nível <strong>COMPLETO</strong> - 
+              Para lançamentos profissionais, recomendamos o nível <strong>COMPLETO</strong> -
               oferece o melhor custo-benefício entre tempo investido e qualidade das mensagens.
             </p>
           </div>
